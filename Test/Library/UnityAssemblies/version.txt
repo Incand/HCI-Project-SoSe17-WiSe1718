@@ -1,0 +1,2 @@
+5.6.0b10:2.2.0.0
+StandaloneWindows

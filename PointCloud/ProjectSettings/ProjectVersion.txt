@@ -1,1 +1,5 @@
+<<<<<<< HEAD
+m_EditorVersion: 5.6.0f3
+=======
 m_EditorVersion: 5.6.0xf3Linux
+>>>>>>> d4e923996880418d6a7f03fa53b31b1719448aec
