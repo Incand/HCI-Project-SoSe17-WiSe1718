@@ -37,7 +37,7 @@ public class MoveRaycast : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        direction = transform.position - direction;
+        direction = getDirection();
         bool treffer = Physics.Raycast(origin, direction, out hit, distance);
         Debug.Log(hit.distance);
         if (treffer) hitting();
@@ -48,7 +48,7 @@ public class MoveRaycast : MonoBehaviour
     float getSineValue(float frequency, float amplitude)
     {
         //sin x;
-        return amplitude * Mathf.Sin(frequency * (Time.time / (2 * Mathf.PI)));
+        return amplitude * Mathf.Sin(frequency * (Time.time * (2 * Mathf.PI)));
     }
     void hitting()
     {
@@ -63,8 +63,13 @@ public class MoveRaycast : MonoBehaviour
     }
     private Vector3 getDirection()
     {
-        direction.y = getSineValue(frequencyVertical, dc.VerticalRadian);
-        direction.x = getSineValue(frequencyHorizontal, dc.HorizontalRadian);
-        return direction;
+        float x = getSineValue(dc.frequencyHorizontal, dc.HorizontalRadian);
+        float y = getSineValue(dc.frequencyVertical, dc.VerticalRadian);
+
+        return dc.distance * new Vector3(
+                Mathf.Cos(x) * Mathf.Cos(y),
+                Mathf.Sin(y),
+                Mathf.Cos(y) * Mathf.Sin(y)
+                );
     }
 }
