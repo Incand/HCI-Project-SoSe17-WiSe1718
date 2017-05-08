@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GridController : MonoBehaviour {
+public class HitScript : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
