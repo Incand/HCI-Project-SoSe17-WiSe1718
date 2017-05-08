@@ -9,9 +9,17 @@ public class TrapezeGridGenerator : MonoBehaviour {
 	[Range(20.0f, 180.0f)]
     private float _horizontalDegree = 45.0f;
 
+	private float HorizontalRadian {
+		get { return _horizontalDegree * Mathf.Deg2Rad; }
+	}
+
 	[SerializeField]
 	[Range(20.0f, 180.0f)]
     private float _verticalDegree = 45.0f;
+
+	private float VerticalRadian {
+		get { return _verticalDegree * Mathf.Deg2Rad; }
+	}
 
     [SerializeField]
     [Range(1.0f, 100.0f)]
@@ -65,11 +73,18 @@ public class TrapezeGridGenerator : MonoBehaviour {
 
     }
 
+    private Vector3 getDirection(uint x, uint y, uint z)
+    {
+		return new Vector3(
+            Mathf.Sin(-HorizontalRadian + 2.0f * x * HorizontalRadian / _horizontalSteps),
+            Mathf.Sin(-VerticalRadian   + 2.0f * y * VerticalRadian   / _verticalSteps  ),
+            1.0f
+        ).normalized;
+    }
+
     private Mesh generateMesh(uint x, uint y, uint z)
 	{
-		Vector3 leftLowerDirection =
-			new Vector3( Mathf.Sin(-_horizontalDegree,
-						 Mathf.Sin(-_verticalDegree)))
+		return null;
 	}
 
     private List<Mesh> generateMeshes()
