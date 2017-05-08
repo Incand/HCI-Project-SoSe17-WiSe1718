@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class TrapezeGridGenerator : MonoBehaviour {
@@ -7,7 +8,7 @@ public class TrapezeGridGenerator : MonoBehaviour {
 
 	[SerializeField]
 	[Range(20.0f, 180.0f)]
-    private float _horizontalDegree = 45.0f;
+    private float _horizontalDegree = 90.0f;
 
 	private float HorizontalRadian {
 		get { return _horizontalDegree * Mathf.Deg2Rad; }
@@ -15,7 +16,7 @@ public class TrapezeGridGenerator : MonoBehaviour {
 
 	[SerializeField]
 	[Range(20.0f, 180.0f)]
-    private float _verticalDegree = 45.0f;
+    private float _verticalDegree = 90.0f;
 
 	private float VerticalRadian {
 		get { return _verticalDegree * Mathf.Deg2Rad; }
@@ -52,12 +53,24 @@ public class TrapezeGridGenerator : MonoBehaviour {
 		get { return _horizontalSteps * _verticalSteps * _lengthSteps; }
     }
 
-	public float HorizontalStepSize {
+	public float HorizontalStepDegree {
 		get { return _horizontalDegree / _horizontalSteps; }
 	}
 
-	public float VerticalStepSize {
+	public float VerticalStepDegree {
 		get { return _verticalDegree / _verticalSteps; }
+    }
+
+	public float HorizontalStepRadian {
+		get { return HorizontalRadian / _horizontalSteps; }
+	}
+
+	public float VerticalStepRadian {
+		get { return HorizontalRadian / _verticalSteps; }
+    }
+
+	void Awake () {
+
     }
 
 	public float LengthStepDynamic(uint depth) {
@@ -69,23 +82,51 @@ public class TrapezeGridGenerator : MonoBehaviour {
 		return _squaredCoeff * depth * depth;
     }
 
-	void Awake () {
+    /**
+	 * Returns the lower left corner's world position of the specified cell
+	 */
+    public Vector3 Grid2World(uint x, uint y, uint z)
+	{
+        if ( x > _horizontalSteps ||
+             y > _verticalSteps   ||
+             z > _depth			  )
+            throw new IndexOutOfRangeException();
 
+		Vector3 anglesAndDistance =
+			new Vector3( -0.5f * HorizontalRadian + x * HorizontalStepRadian,
+			 			 -0.5f * VerticalRadian   + y * VerticalStepRadian,
+						 _depthOffset + LengthStepDynamic(z)				 );
+
+		return anglesAndDistance.z *
+			new Vector3(
+        		Mathf.Cos(anglesAndDistance.y) * Mathf.Sin(anglesAndDistance.y),
+        		Mathf.Sin(anglesAndDistance.y),
+        		Mathf.Cos(anglesAndDistance.x) * Mathf.Cos(anglesAndDistance.y) );
     }
 
-    private Vector3 getDirection(uint x, uint y, uint z)
-    {
-		return new Vector3(
-            Mathf.Sin(-HorizontalRadian + 2.0f * x * HorizontalRadian / _horizontalSteps),
-            Mathf.Sin(-VerticalRadian   + 2.0f * y * VerticalRadian   / _verticalSteps  ),
-            1.0f
-        ).normalized;
-    }
+
+    public Vector3 World2Grid(Vector3 position)
+	{
+		throw new NotImplementedException();
+	}
 
     private Mesh generateMesh(uint x, uint y, uint z)
-	{
-		return null;
-	}
+    {
+		throw new NotImplementedException(); 
+		/*
+        Vector3[] vertices = new Vector3[8] {
+			Grid2World(x, y, z);
+	        Grid2World(x + 1, y, z);
+	        Grid2World(x, y + 1, z);
+	        Grid2World(x + 1, y + 1, z);
+	        Grid2World(x, y, z + 1);
+	        Grid2World(x + 1, y, z + 1);
+	        Grid2World(x, y + 1, z + 1);
+	        Grid2World(x + 1, y + 1, z + 1);
+		};
+		*/
+
+    }
 
     private List<Mesh> generateMeshes()
 	{
