@@ -11,6 +11,7 @@ public class MoveRaycast : MonoBehaviour {
     private float amplitudeVertical, amplitudeHorizontal;
     private float frequencyVertical, frequencyHorizontal, distance;
     RaycastHit hit;
+    FeedBackAudio fb;
 
     // Use this for initialization
     void Start () {
@@ -18,6 +19,7 @@ public class MoveRaycast : MonoBehaviour {
         sphere = GameObject.Find("Sphere");
         sphereHeight = GameObject.Find("SphereLimitHeight");
         sphereWidth = GameObject.Find("SphereLimitWidth");
+        fb = GetComponent<FeedBackAudio>();
         distance = dc.distance;
         amplitudeVertical = dc.width / 2;
         amplitudeHorizontal = dc.height / 2;
@@ -32,15 +34,27 @@ public class MoveRaycast : MonoBehaviour {
     // Update is called once per frame
     void Update () {
         direction = getDirection();
-        bool treffer=Physics.Raycast(origin, direction, out hit);
+        bool treffer=Physics.Raycast(origin, direction, out hit,distance);
         Debug.Log(hit.distance);
-        sphere.transform.position = treffer ? hit.point:direction;
+        if (treffer) hitting();
+        else nohit();
         Debug.DrawRay(origin, direction,  Color.black, 0.01f);
 }
     float getSineValue(float frequency,float amplitude)
     {
         //sin x;
         return amplitude*Mathf.Sin(frequency* (Time.time / (2 * Mathf.PI)));
+    }
+    void hitting()
+    {
+        sphere.transform.position = hit.point;
+        fb.play(distance-hit.distance);
+    }
+    void nohit()
+    {
+        sphere.transform.position = direction;
+        fb.Stop();
+
     }
     private Vector3 getDirection()
     {
