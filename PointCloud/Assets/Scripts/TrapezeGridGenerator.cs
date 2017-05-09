@@ -41,12 +41,12 @@ public class TrapezeGridGenerator : MonoBehaviour {
     }
 
 	private float HorizontalStepSizeRadian {
-		get { return _gridData.HeightAngleDegree / _horizontalSteps; }
+		get { return _gridData.WidthAngleRadian / _horizontalSteps; }
 	}
 
 
 	private float VerticalStepSizeDegree {
-		get { return _gridData.WidthAngleDegree / _verticalSteps; }
+		get { return _gridData.HeightAngleDegree / _verticalSteps; }
     }
 
 	private float VerticalStepSizeRadian {
@@ -77,9 +77,9 @@ public class TrapezeGridGenerator : MonoBehaviour {
 	 */
     private Vector3 Grid2World(uint x, uint y, uint z)
 	{
-        if ( x > _horizontalSteps ||
-             y > _verticalSteps   ||
-             z > _depthSteps        )
+        if ( x > _horizontalSteps + 1 ||
+             y > _verticalSteps   + 1 ||
+             z > _depthSteps      + 1   )
             throw new IndexOutOfRangeException();
 
 		// (azimuth, polar, radial)
