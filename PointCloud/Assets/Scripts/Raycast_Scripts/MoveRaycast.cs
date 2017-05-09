@@ -64,10 +64,6 @@ public class MoveRaycast : MonoBehaviour
         float x = getSineValue(dc.frequencyHorizontal, dc.HorizontalRadian);
         float y = getSineValue(dc.frequencyVertical, dc.VerticalRadian);
 
-        return dc.distance * new Vector3(
-                Mathf.Cos(x) * Mathf.Cos(y),
-                Mathf.Sin(y),
-                Mathf.Cos(y) * Mathf.Sin(y)
-                );
+        return TrapezeGridUtil.PolarToCartesian(new Vector3(x, y, 1.0f));
     }
 }
