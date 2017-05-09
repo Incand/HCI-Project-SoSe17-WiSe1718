@@ -124,7 +124,14 @@ public class TrapezeGridGenerator : MonoBehaviour {
         return result;
     }
 
-    private List<Mesh> generateMeshes()
+    private void instantiateCell(uint x, uint y, uint z)
+    {
+        GameObject cell = new GameObject(string.Format("Cell_{0}_{1}_{2}", x, y, z));
+        cell.AddComponent<MeshRenderer>();
+        cell.AddComponent<MeshFilter>().mesh = generateMesh(x, y, z);
+    }
+
+    private List<Mesh> instantiateCells()
 	{
         List<Mesh> meshes = new List<Mesh>();
 
