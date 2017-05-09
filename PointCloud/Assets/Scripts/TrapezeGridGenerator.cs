@@ -103,7 +103,44 @@ public class TrapezeGridGenerator : MonoBehaviour {
     {
         Mesh result = new Mesh();
 
-        Vector3[] vertices = new Vector3[8] {
+        Vector3[] vertices = new Vector3[24] {
+            // Left
+            Grid2World(x, y    , z + 1),
+            Grid2World(x, y    , z    ),
+            Grid2World(x, y + 1, z + 1),
+            Grid2World(x, y + 1, z    ),
+
+            // Right
+            Grid2World(x + 1, y    , z    ),
+            Grid2World(x + 1, y    , z + 1),
+            Grid2World(x + 1, y + 1, z    ),
+            Grid2World(x + 1, y + 1, z + 1),
+
+            // Bottom
+            Grid2World(x    , y, z + 1),
+            Grid2World(x + 1, y, z + 1),
+            Grid2World(x    , y, z    ),
+            Grid2World(x + 1, y, z    ),
+
+            // Top
+            Grid2World(x    , y + 1, z    ),
+            Grid2World(x + 1, y + 1, z    ),
+            Grid2World(x    , y + 1, z + 1),
+            Grid2World(x + 1, y + 1, z + 1),
+
+            // Front
+            Grid2World(x    , y    , z),
+            Grid2World(x + 1, y    , z),
+            Grid2World(x    , y + 1, z),
+            Grid2World(x + 1, y + 1, z),
+
+            // Back
+            Grid2World(x + 1, y    , z + 1),
+            Grid2World(x    , y    , z + 1),
+            Grid2World(x + 1, y + 1, z + 1),
+            Grid2World(x    , y + 1, z + 1)
+
+            /*
 			Grid2World(x    , y    , z    ), // 0 left -lower-front
 	        Grid2World(x + 1, y    , z    ), // 1 right-lower-front
 	        Grid2World(x    , y + 1, z    ), // 2 left -upper-front
@@ -112,16 +149,28 @@ public class TrapezeGridGenerator : MonoBehaviour {
 	        Grid2World(x + 1, y    , z + 1), // 5 right-lower-back
 	        Grid2World(x    , y + 1, z + 1), // 6 left -upper-back
 	        Grid2World(x + 1, y + 1, z + 1)  // 7 right-upper-back
+            */
         };
 
+
         int[] triangles = new int[36] {
+             0,  2,  3,   0,  3,  1, // Left
+             4,  6,  7,   4,  7,  5, // Right
+             8, 10, 11,   8, 11,  9, // Bottom
+            12, 14, 15,  12, 15, 13, // Top
+            16, 18, 19,  16, 19, 17, // Front
+            20, 22, 23,  20, 23, 21 // Back
+
+            /*
             4, 2, 6,  4, 0, 2,  // Left
             1, 7, 3,  1, 5, 7,  // Right
             4, 1, 0,  4, 5, 1,  // Bottom
             2, 7, 6,  2, 3, 7,  // Upper
             0, 3, 2,  0, 1, 3,  // Front
             5, 6, 7,  5, 4, 6  // Back
+            */
         };
+
 
         result.vertices  = vertices;
         result.triangles = triangles;
