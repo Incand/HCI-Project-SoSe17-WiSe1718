@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class TrapezeGridData : MonoBehaviour {
 
+	[HeaderAttribute("Grid Dimensions")]
+
     #region WIDTH_ANGLE
 
     [SerializeField]
