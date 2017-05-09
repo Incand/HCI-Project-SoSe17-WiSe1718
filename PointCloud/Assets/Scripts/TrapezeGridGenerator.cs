@@ -88,10 +88,10 @@ public class TrapezeGridGenerator : MonoBehaviour {
 
 
     private Vector3 World2Grid(Vector3 position)
-	{
+    {
 		throw new NotImplementedException();
     }
-	
+
 
     private Mesh generateMesh(uint x, uint y, uint z)
     {
