@@ -69,7 +69,7 @@ public class TrapezeGridGenerator : MonoBehaviour {
     /**
 	 * Returns the lower left corner's world position of the specified cell
 	 */
-    public Vector3 Grid2World(uint x, uint y, uint z)
+    private Vector3 Grid2World(uint x, uint y, uint z)
 	{
         if ( x > _horizontalSteps ||
              y > _verticalSteps   ||
@@ -77,23 +77,21 @@ public class TrapezeGridGenerator : MonoBehaviour {
             throw new IndexOutOfRangeException();
 
 		// (azimuth, polar, radial)
-		Vector3 polarCoords =
-			new Vector3( -0.5f * _gridData.WidthAngleRadian  + x * HorizontalStepSizeRadian,
-			 			 -0.5f * _gridData.HeightAngleRadian + y * VerticalStepSizeRadian,
-						 _gridData.DepthOffset + z * DepthStepSizeLinear				    );
+		Vector3 polarCoords = new Vector3(
+			-0.5f * _gridData.WidthAngleRadian  + x * HorizontalStepSizeRadian,
+			-0.5f * _gridData.HeightAngleRadian + y * VerticalStepSizeRadian,
+			_gridData.DepthOffset + z * DepthStepSizeLinear
+		);
 
-		return polarCoords.z *
-			new Vector3(
-        		Mathf.Cos(polarCoords.y) * Mathf.Sin(polarCoords.y),
-        		Mathf.Sin(polarCoords.y),
-        		Mathf.Cos(polarCoords.x) * Mathf.Cos(polarCoords.y) );
+		return TrapezeGridUtil.PolarToCartesian(polarCoords);
     }
 
 
-    public Vector3 World2Grid(Vector3 position)
+    private Vector3 World2Grid(Vector3 position)
 	{
 		throw new NotImplementedException();
-	}
+    }
+	
 
     private Mesh generateMesh(uint x, uint y, uint z)
     {
