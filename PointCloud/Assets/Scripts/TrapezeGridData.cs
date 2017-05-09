@@ -52,7 +52,7 @@ public class TrapezeGridData : MonoBehaviour {
     private float _depthOffset = 1.0f;
 
 	public float DepthOffset {
-		get { return _depth; }
+		get { return _depthOffset; }
 	}
 
 	#endregion
