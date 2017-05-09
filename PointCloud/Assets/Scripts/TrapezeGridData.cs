@@ -24,7 +24,7 @@ public class TrapezeGridData : MonoBehaviour {
 
     [SerializeField]
 	[Range(20.0f, 180.0f)]
-	private float _heightAngleDegree = 90.0f;
+    private float _heightAngleDegree = 90.0f;
 
 	public float HeightAngleDegree {
 		get { return _heightAngleDegree; }
@@ -32,7 +32,7 @@ public class TrapezeGridData : MonoBehaviour {
 
 	public float HeightAngleRadian {
 		get { return _heightAngleDegree * Mathf.Deg2Rad; }
-    }
+  	}
 
     #endregion
 
@@ -56,5 +56,4 @@ public class TrapezeGridData : MonoBehaviour {
 	}
 
 	#endregion
-
 }
