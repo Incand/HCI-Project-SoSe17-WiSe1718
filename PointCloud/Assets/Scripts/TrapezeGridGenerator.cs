@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System;
 using UnityEngine;
 
@@ -22,6 +21,11 @@ public class TrapezeGridGenerator : MonoBehaviour {
 	[SerializeField]
     [Range(1.0f, 30.0f)]
     private uint _depthSteps = 5;
+
+    [HeaderAttribute("Rendering")]
+
+    [SerializeField]
+    private Material _cellMaterial;
 
 	#endregion
 
@@ -59,7 +63,9 @@ public class TrapezeGridGenerator : MonoBehaviour {
 	#region UNITY_EXECUTION_CHAIN_METHODS
 
 	void Awake () {
-		_gridData = GetComponent<TrapezeGridData>();
+        _gridData = GetComponent<TrapezeGridData>();
+
+        instantiateCells();
     }
 
 	#endregion
@@ -109,12 +115,12 @@ public class TrapezeGridGenerator : MonoBehaviour {
         };
 
         int[] triangles = new int[36] {
-            4, 6, 2,  4, 2, 0, // Left
-            1, 3, 7,  1, 7, 5, // Right
-            4, 0, 1,  4, 1, 5, // Bottom
-            2, 6, 7,  2, 7, 3, // Upper
-            0, 2, 3,  0, 3, 1, // Front
-            5, 7, 6,  5, 6, 4  // Back
+            4, 2, 6,  4, 0, 2,  // Left
+            1, 7, 3,  1, 5, 7,  // Right
+            4, 1, 0,  4, 5, 1,  // Bottom
+            2, 7, 6,  2, 3, 7,  // Upper
+            0, 3, 2,  0, 1, 3,  // Front
+            5, 6, 7,  5, 4, 6  // Back
         };
 
         result.vertices  = vertices;
@@ -127,23 +133,20 @@ public class TrapezeGridGenerator : MonoBehaviour {
     private void instantiateCell(uint x, uint y, uint z)
     {
         GameObject cell = new GameObject(string.Format("Cell_{0}_{1}_{2}", x, y, z));
-        cell.AddComponent<MeshRenderer>();
+        cell.AddComponent<MeshRenderer>().material = _cellMaterial;
         cell.AddComponent<MeshFilter>().mesh = generateMesh(x, y, z);
+        cell.transform.parent = transform;
     }
 
-    private List<Mesh> instantiateCells()
-	{
-        List<Mesh> meshes = new List<Mesh>();
-
+    private void instantiateCells()
+    {
         for (uint z = 0; z < _depthSteps; z++) {
             for (uint y = 0; y < _verticalSteps; y++) {
                 for (uint x = 0; x < _horizontalSteps; x++) {
-					meshes.Add(generateMesh(x, y, z));
+					instantiateCell(x, y, z);
 				}
             }
         }
-
-		return meshes;
 	}
 
 	#endregion
