@@ -95,20 +95,33 @@ public class TrapezeGridGenerator : MonoBehaviour {
 
     private Mesh generateMesh(uint x, uint y, uint z)
     {
-		throw new NotImplementedException();
-		/*
-        Vector3[] vertices = new Vector3[8] {
-			Grid2World(x, y, z);
-	        Grid2World(x + 1, y, z);
-	        Grid2World(x, y + 1, z);
-	        Grid2World(x + 1, y + 1, z);
-	        Grid2World(x, y, z + 1);
-	        Grid2World(x + 1, y, z + 1);
-	        Grid2World(x, y + 1, z + 1);
-	        Grid2World(x + 1, y + 1, z + 1);
-		};
-		*/
+        Mesh result = new Mesh();
 
+        Vector3[] vertices = new Vector3[8] {
+			Grid2World(x    , y    , z    ), // 0 left -lower-front
+	        Grid2World(x + 1, y    , z    ), // 1 right-lower-front
+	        Grid2World(x    , y + 1, z    ), // 2 left -upper-front
+	        Grid2World(x + 1, y + 1, z    ), // 3 right-upper-front
+	        Grid2World(x    , y    , z + 1), // 4 left -lower-back
+	        Grid2World(x + 1, y    , z + 1), // 5 right-lower-back
+	        Grid2World(x    , y + 1, z + 1), // 6 left -upper-back
+	        Grid2World(x + 1, y + 1, z + 1)  // 7 right-upper-back
+        };
+
+        int[] triangles = new int[36] {
+            4, 6, 2,  4, 2, 0, // Left
+            1, 3, 7,  1, 7, 5, // Right
+            4, 0, 1,  4, 1, 5, // Bottom
+            2, 6, 7,  2, 7, 3, // Upper
+            0, 2, 3,  0, 3, 1, // Front
+            5, 7, 6,  5, 6, 4  // Back
+        };
+
+        result.vertices  = vertices;
+        result.triangles = triangles;
+        result.RecalculateNormals();
+
+        return result;
     }
 
     private List<Mesh> generateMeshes()
