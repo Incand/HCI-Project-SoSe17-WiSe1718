@@ -66,6 +66,6 @@ public class MoveRaycast : MonoBehaviour
         float x = getSineValue(dc.frequencyHorizontal, dc.HorizontalRadian);
         float y = getSineValue(dc.frequencyVertical, dc.VerticalRadian);
 
-        return GridUtil.PolarToCartesian(new Vector3(x, y, 1.0f));
+        return GridWorldConverter.PolarToCartesian(new Vector3(x, y, 1.0f));
     }
 }
