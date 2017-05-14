@@ -35,6 +35,10 @@ namespace TrapezeGrid
         }
 
 		void Update () {
+			if (Application.isPlaying)
+				return;
+
+			Debug.Log("test");
 			removeCells();
 			setMeshGenerator();
 			instantiateCells();
