@@ -1,5 +1,7 @@
 using UnityEngine;
 
+using TrapezeGrid;
+
 public class MoveRaycast : MonoBehaviour
 {
 
@@ -64,6 +66,6 @@ public class MoveRaycast : MonoBehaviour
         float x = getSineValue(dc.frequencyHorizontal, dc.HorizontalRadian);
         float y = getSineValue(dc.frequencyVertical, dc.VerticalRadian);
 
-        return TrapezeGridUtil.PolarToCartesian(new Vector3(x, y, 1.0f));
+        return GridUtil.PolarToCartesian(new Vector3(x, y, 1.0f));
     }
 }

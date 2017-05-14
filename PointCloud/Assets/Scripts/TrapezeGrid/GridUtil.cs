@@ -3,7 +3,7 @@ using UnityEngine;
 namespace TrapezeGrid
 {
 
-	public class GridUtil {
+	public static class GridUtil {
 
 	    /**
 		 * Translates a cartesian Vector to polar coordinates.

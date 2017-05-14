@@ -1,13 +1,11 @@
 using System;
 using UnityEngine;
 
-using TrapezeGrid;
-
-namespace GridGenerator
+namespace TrapezeGrid
 {
 
     [RequireComponent(typeof(GridData))]
-    public class TrapezeGridGenerator : MonoBehaviour {
+    public class GridGenerator : MonoBehaviour {
 
         private GridData _gridData;
 
@@ -68,7 +66,7 @@ namespace GridGenerator
     	#region UNITY_EXECUTION_CHAIN_METHODS
 
     	void Awake () {
-            _gridData = GetComponent<TrapezeGridData>();
+            _gridData = GetComponent<GridData>();
 
             instantiateCells();
         }
@@ -94,7 +92,7 @@ namespace GridGenerator
     			_gridData.DepthOffset + z * DepthStepSizeLinear
     		);
 
-    		return TrapezeGridUtil.PolarToCartesian(polarCoords);
+    		return GridUtil.PolarToCartesian(polarCoords);
         }
 
 
