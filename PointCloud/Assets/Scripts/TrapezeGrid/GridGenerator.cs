@@ -21,7 +21,7 @@ namespace TrapezeGrid
 		[HeaderAttribute("Rendering")]
 
 		[SerializeField]
-		private MeshType _meshType;
+		private MeshType _meshType = MeshType.COMPLEX;
 
         [SerializeField]
         private Material _cellMaterial;
