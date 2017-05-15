@@ -7,6 +7,9 @@ namespace TrapezeGrid
 		public SimpleMeshGenerator(GridData gridData) 
 			: base(gridData) { }
 
+		public SimpleMeshGenerator(GridWorldConverter gridWorldConverter)
+			: base(gridWorldConverter) { }
+
 
 		public override Mesh GenerateMesh(uint x, uint y, uint z)
 		{
