@@ -11,7 +11,8 @@ public class MoveRaycast : MonoBehaviour
     private GridData gd;
     [Serializable]
     public class HitEvent : UnityEvent<Vector3> { }
-    public HitEvent hiteve;
+    public HitEvent OnHitEnter,OnHitStay,OnHitExit,NoHitStay;
+    private bool lastHit = false;
     RaycastHit hit;
     FeedBackAudio fb;
 
@@ -28,9 +29,20 @@ public class MoveRaycast : MonoBehaviour
     void Update()
     {
         bool treffer = Physics.Raycast(transform.position, getDirection(), out hit, gd.Depth);
-        Debug.Log(hit.point);
-        if (treffer) hiteve.Invoke(hit.point);
+        Debug.Log(treffer);
+        if (treffer&& !lastHit) {
+            OnHitEnter.Invoke(hit.point);
+                }
+        else if(treffer && lastHit)
+        {
+            OnHitStay.Invoke(hit.point);
+        }
+        else if(!treffer && lastHit)
+        {
+            OnHitExit.Invoke(new Vector3(0,0,gd.Depth));
+        }
         Debug.DrawRay(transform.position, getDirection(), Color.black, 0.01f);
+        lastHit = treffer;
     }
 
     float getSineValue(float amplitude, float frequency)

@@ -1,14 +1,21 @@
 using UnityEngine;
+using TrapezeGrid;
 
+[RequireComponent(typeof(GridData))]
 public class FeedBackAudio : MonoBehaviour {
     public int position = 0;
     public int samplerate = 44100;
-    int globalDistance;
+    [Range(0,20)]
+    private GridData gd;
     AudioSource aud;
+    AudioClip.PCMReaderCallback callback;
     AudioClip myClip;
+
     // Use this for initialization
     void Start () {
+        gd = GetComponent<GridData>();
         aud = GetComponent<AudioSource>();
+        play();
     }
 
     // Update is called once per frame
@@ -16,10 +23,16 @@ public class FeedBackAudio : MonoBehaviour {
 
 	}
 
-    public void play(float distance)
+    public void play()
     {
-        globalDistance = (int)distance;
-        myClip = AudioClip.Create("MySinusoid", samplerate * 2, 1, samplerate, true, OnAudioRead, OnAudioSetPosition);
+        callback = delegate (float[] data)
+        {
+            for (int i = 0; i < data.Length; i++)
+            {
+                data[i] = Mathf.Sin(i / 1);
+            }
+        };
+        myClip = AudioClip.Create("MySinusoid", samplerate * 2, 1, samplerate, true, callback, OnAudioSetPosition);
         aud.clip = myClip;
         aud.Play();
     }
@@ -29,16 +42,12 @@ public class FeedBackAudio : MonoBehaviour {
         aud.Stop();
     }
 
-    void OnAudioRead(float[] data)
+    public void updateSound(Vector3 hitpoint)
     {
-        int count = 0;
-        while (count < data.Length)
-        {
-            data[count] = Mathf.Sign(Mathf.Sin(2 * Mathf.PI * globalDistance * position / samplerate));
-            position++;
-            count++;
-        }
+        aud.pitch =  Mathf.Abs((hitpoint.magnitude - gd.Depth) /100);
+        play();
     }
+    
 
     void OnAudioSetPosition(int newPosition)
     {
