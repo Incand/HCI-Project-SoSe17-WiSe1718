@@ -37,9 +37,20 @@ namespace TrapezeGrid
 		}
 
 
-		public Vector3 WorldToGrid(Vector3 position)
+		/**
+		 * Returns the indices of the 3D-grid, the given position were in
+		 */
+		public int[] WorldToGrid(Vector3 position)
 		{
-			throw new NotImplementedException();
+			Vector3 polar = CartesianToPolar(position);
+
+			int[] result = new int[3] { 
+				(int)((polar.x + 0.5f * _gridData.WidthAngleRadian ) / _gridData.HorizontalStepSizeRadian),
+				(int)((polar.y + 0.5f * _gridData.HeightAngleRadian) / _gridData.VerticalStepSizeRadian  ),
+				(int)((polar.z -        _gridData.DepthOffset      ) / _gridData.DepthStepSizeLinear     )
+			};
+
+			return result;
 		}
 
 		#endregion
