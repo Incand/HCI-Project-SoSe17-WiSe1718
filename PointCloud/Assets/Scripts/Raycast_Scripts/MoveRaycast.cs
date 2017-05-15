@@ -1,71 +1,60 @@
 using UnityEngine;
-
+using UnityEngine.Events;
+using System;
 using TrapezeGrid;
 
+[RequireComponent(typeof(GridData))]
 public class MoveRaycast : MonoBehaviour
 {
-
     [SerializeField]
-    private DataContainer dc;
-    private Vector3 origin, direction;
-    GameObject sphere, sphereHeight, sphereWidth, sphereWidth2;
-    private float amplitudeVertical, amplitudeHorizontal;
-    private float frequencyVertical, frequencyHorizontal, distance;
+    private float frequencyVertical,frequencyHorizontal;
+    private GridData gd;
+    [Serializable]
+    public class HitEvent : UnityEvent<Vector3> { }
+    public HitEvent OnHitEnter,OnHitStay,OnHitExit,NoHitStay;
+    private bool lastHit = false;
     RaycastHit hit;
     FeedBackAudio fb;
 
+    void Awake()
+    {
+        gd = GetComponent<GridData>();
+    }
     // Use this for initialization
     void Start()
     {
-        origin = gameObject.transform.position;
-        sphere = GameObject.Find("Sphere");
-        sphereHeight = GameObject.Find("SphereLimitHeight");
-        sphereWidth = GameObject.Find("SphereLimitWidth");
-        sphereWidth2 = GameObject.Find("SphereLimitWidth2");
-
-        fb = GetComponent<FeedBackAudio>();
-        distance = dc.distance;
-        frequencyVertical = dc.frequencyVertical;
-        frequencyHorizontal = dc.frequencyHorizontal;
-        direction = new Vector3(0, 0, distance);
-        sphereHeight.transform.position = new Vector3(direction.x, amplitudeVertical, direction.z);
-        sphereWidth.transform.position = new Vector3(amplitudeHorizontal, direction.y, direction.z);
-        sphereWidth2.transform.position = new Vector3(-1 * amplitudeHorizontal, direction.y, direction.z);
-
     }
 
     // Update is called once per frame
     void Update()
     {
-        direction = getDirection();
-        bool treffer = Physics.Raycast(origin, direction, out hit, distance);
-        Debug.Log(hit.distance);
-        if (treffer) hitting();
-        else nohit();
-        Debug.DrawRay(origin, direction, Color.black, 0.01f);
+        bool treffer = Physics.Raycast(transform.position, getDirection(), out hit, gd.Depth);
+        Debug.Log(treffer);
+        if (treffer&& !lastHit) {
+            OnHitEnter.Invoke(hit.point);
+                }
+        else if(treffer && lastHit)
+        {
+            OnHitStay.Invoke(hit.point);
+        }
+        else if(!treffer && lastHit)
+        {
+            OnHitExit.Invoke(new Vector3(0,0,gd.Depth));
+        }
+        Debug.DrawRay(transform.position, getDirection(), Color.black, 0.01f);
+        lastHit = treffer;
     }
 
-    float getSineValue(float frequency, float amplitude)
-    {
-        //sin x;
-        return amplitude * Mathf.Sin(frequency * (Time.time * (2 * Mathf.PI)));
+    float getSineValue(float amplitude, float frequency)
+    {   
+        return 0.5f * amplitude * Mathf.Sin(frequency * (Time.time * (2 * Mathf.PI)));
     }
-    void hitting()
-    {
-        sphere.transform.position = hit.point;
-        fb.play(distance - hit.distance);
-    }
-    void nohit()
-    {
-        sphere.transform.position = direction;
-        fb.Stop();
-
-    }
+   
     private Vector3 getDirection()
     {
-        float x = getSineValue(dc.frequencyHorizontal, dc.HorizontalRadian);
-        float y = getSineValue(dc.frequencyVertical, dc.VerticalRadian);
+        float x = getSineValue(gd.WidthAngleRadian,frequencyHorizontal );
+        float y = getSineValue(gd.HeightAngleRadian,frequencyVertical);
 
-        return GridWorldConverter.PolarToCartesian(new Vector3(x, y, 1.0f));
+        return GridWorldConverter.PolarToCartesian(new Vector3(x, y, gd.Depth));
     }
 }

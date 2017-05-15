@@ -6,9 +6,15 @@ namespace TrapezeGrid
 	{
 		protected GridWorldConverter _gridWorldConverter;
 
+
 		protected AMeshGenerator(GridData gridData)
 		{
 			_gridWorldConverter = new GridWorldConverter(gridData);
+		}
+
+		protected AMeshGenerator(GridWorldConverter gridWorldConverter)
+		{
+			_gridWorldConverter = gridWorldConverter;
 		}
 
 
