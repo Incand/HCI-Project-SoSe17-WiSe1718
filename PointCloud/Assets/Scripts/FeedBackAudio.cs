@@ -1,5 +1,3 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class FeedBackAudio : MonoBehaviour {
@@ -12,10 +10,12 @@ public class FeedBackAudio : MonoBehaviour {
     void Start () {
         aud = GetComponent<AudioSource>();
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update() {
+
 	}
+
     public void play(float distance)
     {
         globalDistance = (int)distance;
@@ -23,10 +23,12 @@ public class FeedBackAudio : MonoBehaviour {
         aud.clip = myClip;
         aud.Play();
     }
+
     public void Stop()
     {
         aud.Stop();
     }
+
     void OnAudioRead(float[] data)
     {
         int count = 0;
