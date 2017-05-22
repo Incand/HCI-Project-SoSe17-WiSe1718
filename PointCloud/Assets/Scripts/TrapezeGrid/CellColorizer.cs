@@ -31,12 +31,6 @@ namespace TrapezeGrid
 			_meshRenderer = GetComponent<MeshRenderer>();
 		}
 
-		void Update()
-		{
-			if (Random.value < 0.001f)
-				StartFade();
-		}
-
 		#endregion
 
 		#region PRIVATE_METHODS
