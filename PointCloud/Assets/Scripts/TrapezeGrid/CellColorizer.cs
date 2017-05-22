@@ -35,7 +35,7 @@ namespace TrapezeGrid
 
 		#region PRIVATE_METHODS
 
-		private IEnumerator Fade()
+		private IEnumerator Fade(bool isMeshVisible)
 		{
 			float timer = 0.0f;
 			while (timer < _fadeTime)
@@ -45,17 +45,16 @@ namespace TrapezeGrid
 				timer += Time.deltaTime;
 				yield return null;
 			}
-            setMeshVisible(false);
+            setMeshVisible(isMeshVisible);
 		}
 
 		#endregion
 
 		#region PUBLIC_METHODS
 
-		public void Colorize()
+		public void Colorize(bool isMeshVisible)
 		{
-
-			StartCoroutine(Fade());
+			StartCoroutine(Fade(isMeshVisible));
 		}
         public void setMeshVisible(bool visible)
         {

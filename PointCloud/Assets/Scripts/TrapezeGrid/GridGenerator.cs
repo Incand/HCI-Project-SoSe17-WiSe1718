@@ -16,9 +16,8 @@ namespace TrapezeGrid
 		private GridWorldConverter _gridWorldConverter;
 
 		private AMeshGenerator _meshGenerator;
-        [SerializeField]
 		private CellColorizer[,,] _cellColorizers;
-        public bool toggle_mesh = false;
+        private bool _visibilityEnabled = false;
 		
         #endregion
 		#region EDITOR_INTERFACE
@@ -28,7 +27,10 @@ namespace TrapezeGrid
 		[SerializeField]
 		private MeshType _meshType = MeshType.COMPLEX;
 
-		[SerializeField]
+        [SerializeField]
+        private bool toggleMesh = false;
+
+        [SerializeField]
 		private Material _cellMaterial;
 
 		#endregion
@@ -46,11 +48,17 @@ namespace TrapezeGrid
 
 		void Update()
 		{
-			if (Application.isPlaying)
+            if ((toggleMesh && !_visibilityEnabled) || (!toggleMesh && _visibilityEnabled))
+            {
+                toggleGridVisibility();
+            }
+            if (Application.isPlaying)
 				return;
 			removeCells();
 			setMeshGenerator();
 			instantiateCells();
+
+           
 		}
 
 		#endregion
@@ -87,7 +95,14 @@ namespace TrapezeGrid
 			}
 		}
 
-
+        private void toggleGridVisibility()
+        {
+            foreach(CellColorizer cellColorizer in _cellColorizers)
+            {
+                cellColorizer.setMeshVisible(toggleMesh);
+            }
+            _visibilityEnabled = toggleMesh;
+        }
 		private void removeCells()
 		{
 			int childCount = transform.childCount;
@@ -116,12 +131,12 @@ namespace TrapezeGrid
 		public void ColorizeCell(Vector3 position)
 		{
 			int[] indices = _gridWorldConverter.WorldToGrid(position);
-            ((CellColorizer)_cellColorizers.GetValue(indices)).Colorize();
-		}
+            ((CellColorizer)_cellColorizers.GetValue(indices)).Colorize(toggleMesh);
+        }
 
-		#endregion
+        #endregion
 
-	}
+    }
 
 	public enum MeshType { SIMPLE, COMPLEX };
 }
