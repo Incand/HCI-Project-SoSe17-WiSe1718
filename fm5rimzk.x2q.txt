@@ -1,0 +1,37 @@
+﻿Merge branches 'master' and 'master' of https://github.com/Incand/HCI-Project-SoSe17-WiSe1718
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Date:      Mon May 22 14:51:02 2017 +0200
+#
+# On branch master
+# Your branch is behind 'origin/master' by 10 commits, and can be fast-forwarded.
+#   (use "git pull" to update your local branch)
+#
+# Changes to be committed:
+#	new file:   PointCloud/Assets/Prefabs.meta
+#	modified:   PointCloud/Assets/Scenes/Raycast.unity
+#	modified:   PointCloud/Assets/Scripts/TrapezeGrid/CellColorizer.cs
+#	modified:   PointCloud/Assets/Scripts/TrapezeGrid/GridGenerator.cs
+#	new file:   UnitySensorExample/ProjectSettings/AudioManager.asset
+#	new file:   UnitySensorExample/ProjectSettings/ClusterInputManager.asset
+#	new file:   UnitySensorExample/ProjectSettings/DynamicsManager.asset
+#	new file:   UnitySensorExample/ProjectSettings/EditorBuildSettings.asset
+#	new file:   UnitySensorExample/ProjectSettings/EditorSettings.asset
+#	new file:   UnitySensorExample/ProjectSettings/GraphicsSettings.asset
+#	new file:   UnitySensorExample/ProjectSettings/InputManager.asset
+#	new file:   UnitySensorExample/ProjectSettings/NavMeshAreas.asset
+#	new file:   UnitySensorExample/ProjectSettings/NetworkManager.asset
+#	new file:   UnitySensorExample/ProjectSettings/Physics2DSettings.asset
+#	new file:   UnitySensorExample/ProjectSettings/ProjectSettings.asset
+#	new file:   UnitySensorExample/ProjectSettings/ProjectVersion.txt
+#	new file:   UnitySensorExample/ProjectSettings/QualitySettings.asset
+#	new file:   UnitySensorExample/ProjectSettings/TagManager.asset
+#	new file:   UnitySensorExample/ProjectSettings/TimeManager.asset
+#	new file:   UnitySensorExample/ProjectSettings/UnityConnectSettings.asset
+#
+# Changes not staged for commit:
+#	deleted:    PointCloud/Assets/Prefabs.meta
+#
+
