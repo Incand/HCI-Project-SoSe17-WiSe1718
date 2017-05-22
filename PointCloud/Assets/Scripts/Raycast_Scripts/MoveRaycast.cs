@@ -6,55 +6,93 @@ using TrapezeGrid;
 [RequireComponent(typeof(GridData))]
 public class MoveRaycast : MonoBehaviour
 {
-    [SerializeField]
-    private float frequencyVertical,frequencyHorizontal;
-    private GridData gd;
-    [Serializable]
-    public class HitEvent : UnityEvent<Vector3> { }
-    public HitEvent OnHitEnter,OnHitStay,OnHitExit,NoHitStay;
-    private bool lastHit = false;
-    RaycastHit hit;
-    FeedBackAudio fb;
+	#region FIELDS
 
-    void Awake()
-    {
-        gd = GetComponent<GridData>();
-    }
-    // Use this for initialization
-    void Start()
-    {
-    }
+	[Serializable]
+	public class HitEvent : UnityEvent<Vector3> { }
 
-    // Update is called once per frame
-    void Update()
-    {
-        bool treffer = Physics.Raycast(transform.position, getDirection(), out hit, gd.Depth);
-        Debug.Log(treffer);
-        if (treffer&& !lastHit) {
-            OnHitEnter.Invoke(hit.point);
-                }
-        else if(treffer && lastHit)
-        {
-            OnHitStay.Invoke(hit.point);
-        }
-        else if(!treffer && lastHit)
-        {
-            OnHitExit.Invoke(new Vector3(0,0,gd.Depth));
-        }
-        Debug.DrawRay(transform.position, getDirection(), Color.black, 0.01f);
-        lastHit = treffer;
-    }
+	private GridData _gridData;
 
-    float getSineValue(float amplitude, float frequency)
-    {   
-        return 0.5f * amplitude * Mathf.Sin(frequency * (Time.time * (2 * Mathf.PI)));
-    }
-   
-    private Vector3 getDirection()
-    {
-        float x = getSineValue(gd.WidthAngleRadian,frequencyHorizontal );
-        float y = getSineValue(gd.HeightAngleRadian,frequencyVertical);
+	private bool lastHit = false;
 
-        return GridWorldConverter.PolarToCartesian(new Vector3(x, y, gd.Depth));
-    }
+	#endregion
+
+	#region EDITOR_INTERFACE
+
+	[HeaderAttribute("Raycast Movement Speed")]
+
+	[SerializeField]
+	[Range(0.0f, 15.0f)]
+	private float frequencyVertical = 2.5f;
+
+	[SerializeField]
+	[Range(0.0f, 2.0f)]
+	private float frequencyHorizontal = 0.25104398561f;
+
+
+	[HeaderAttribute("Events")]
+
+	[SerializeField]
+	private HitEvent OnHitEnter;
+
+	[SerializeField]
+	private HitEvent OnHitStay;
+
+	[SerializeField]
+	private HitEvent OnHitExit;
+
+	[SerializeField]
+	private HitEvent NoHitStay;
+
+	#endregion
+
+	#region UNITY_EXECUTION_CHAIN_METHODS
+
+	void Awake()
+	{
+		_gridData = GetComponent<GridData>();
+	}
+
+	// Update is called once per frame
+	void Update()
+	{
+		RaycastHit hit;
+		bool hitSomething = Physics.Raycast(transform.position, getDirection(), out hit, _gridData.Depth);
+
+		if (hitSomething && !lastHit)
+		{
+			OnHitEnter.Invoke(hit.point);
+		}
+		else if (hitSomething && lastHit)
+		{
+			OnHitStay.Invoke(hit.point);
+		}
+		else if (!hitSomething && lastHit)
+		{
+			OnHitExit.Invoke(new Vector3(0.0f, 0.0f, _gridData.Depth));
+		}
+
+		Debug.DrawRay(transform.position, getDirection(), Color.black, 0.01f);
+		lastHit = hitSomething;
+	}
+
+	#endregion
+
+	#region PRIVATE_METHODS
+
+	private float getSineValue(float amplitude, float frequency)
+	{
+		return 0.5f * amplitude * Mathf.Sin(frequency * (Time.time * (2 * Mathf.PI)));
+	}
+
+
+	private Vector3 getDirection()
+	{
+		float x = getSineValue(_gridData.WidthAngleRadian, frequencyHorizontal);
+		float y = getSineValue(_gridData.HeightAngleRadian, frequencyVertical);
+
+		return GridWorldConverter.PolarToCartesian(new Vector3(x, y, _gridData.Depth));
+	}
+
+	#endregion
 }

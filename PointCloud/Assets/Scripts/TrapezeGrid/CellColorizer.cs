@@ -34,7 +34,7 @@ namespace TrapezeGrid
 		void Update()
 		{
 			if (Random.value < 0.001f)
-				StartFade();
+				Colorize();
 		}
 
 		#endregion
@@ -56,9 +56,8 @@ namespace TrapezeGrid
 
 		#region PUBLIC_METHODS
 
-		public void StartFade()
+		public void Colorize()
 		{
-			Debug.Log("Blub");
 			StartCoroutine(Fade());
 		}
 
