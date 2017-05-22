@@ -45,9 +45,9 @@ namespace TrapezeGrid
 			Vector3 polar = CartesianToPolar(position);
 
 			int[] result = new int[3] { 
-				(int)((polar.x + 0.5f * _gridData.WidthAngleRadian ) / _gridData.HorizontalStepSizeRadian),
+				(int)((polar.z -        _gridData.DepthOffset      ) / _gridData.DepthStepSizeLinear     ),
 				(int)((polar.y + 0.5f * _gridData.HeightAngleRadian) / _gridData.VerticalStepSizeRadian  ),
-				(int)((polar.z -        _gridData.DepthOffset      ) / _gridData.DepthStepSizeLinear     )
+				(int)((polar.x + 0.5f * _gridData.WidthAngleRadian ) / _gridData.HorizontalStepSizeRadian)
 			};
 
 			return result;
