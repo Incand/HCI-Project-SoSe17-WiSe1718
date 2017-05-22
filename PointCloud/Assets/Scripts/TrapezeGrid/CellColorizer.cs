@@ -31,6 +31,12 @@ namespace TrapezeGrid
 			_meshRenderer = GetComponent<MeshRenderer>();
 		}
 
+		void Update()
+		{
+			if (Random.value < 0.001f)
+				Colorize();
+		}
+
 		#endregion
 
 		#region PRIVATE_METHODS
@@ -50,9 +56,8 @@ namespace TrapezeGrid
 
 		#region PUBLIC_METHODS
 
-		public void StartFade()
+		public void Colorize()
 		{
-			Debug.Log("Blub");
 			StartCoroutine(Fade());
 		}
 
