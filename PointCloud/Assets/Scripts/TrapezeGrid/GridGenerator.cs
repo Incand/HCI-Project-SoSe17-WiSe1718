@@ -113,7 +113,7 @@ namespace TrapezeGrid
 		{
 			int[] indices = _gridWorldConverter.WorldToGrid(position);
 
-			((CellColorizer)_cellColorizers.GetValue(indices)).StartFade();
+			((CellColorizer)_cellColorizers.GetValue(indices)).Colorize();
 		}
 
 		#endregion
