@@ -18,9 +18,9 @@ namespace TrapezeGrid
 		private AMeshGenerator _meshGenerator;
         [SerializeField]
 		private CellColorizer[,,] _cellColorizers;
-
-		#endregion
-
+        public bool toggle_mesh = false;
+		
+        #endregion
 		#region EDITOR_INTERFACE
 
 		[HeaderAttribute("Rendering")]
@@ -48,7 +48,6 @@ namespace TrapezeGrid
 		{
 			if (Application.isPlaying)
 				return;
-
 			removeCells();
 			setMeshGenerator();
 			instantiateCells();
@@ -68,6 +67,8 @@ namespace TrapezeGrid
 			cell.transform.parent = transform;
 
 			_cellColorizers[z, y, x] = cell.AddComponent<CellColorizer>();
+
+            cell.GetComponent<CellColorizer>().setMeshVisible(false);
 		}
 
 		private void instantiateCells()
@@ -115,7 +116,7 @@ namespace TrapezeGrid
 		public void ColorizeCell(Vector3 position)
 		{
 			int[] indices = _gridWorldConverter.WorldToGrid(position);
-			((CellColorizer)_cellColorizers.GetValue(indices)).Colorize();
+            ((CellColorizer)_cellColorizers.GetValue(indices)).Colorize();
 		}
 
 		#endregion

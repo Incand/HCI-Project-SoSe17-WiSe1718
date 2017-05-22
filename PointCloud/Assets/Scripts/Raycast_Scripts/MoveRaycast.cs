@@ -91,7 +91,7 @@ public class MoveRaycast : MonoBehaviour
 		float x = getSineValue(_gridData.WidthAngleRadian, frequencyHorizontal);
 		float y = getSineValue(_gridData.HeightAngleRadian, frequencyVertical);
 
-		return GridWorldConverter.PolarToCartesian(new Vector3(x, y, _gridData.Depth));
+		return transform.localToWorldMatrix * GridWorldConverter.PolarToCartesian(new Vector3(x, y, _gridData.Depth));
 	}
 
 	#endregion

@@ -31,8 +31,6 @@ namespace TrapezeGrid
 			_meshRenderer = GetComponent<MeshRenderer>();
 		}
 
-
-
 		#endregion
 
 		#region PRIVATE_METHODS
@@ -42,10 +40,12 @@ namespace TrapezeGrid
 			float timer = 0.0f;
 			while (timer < _fadeTime)
 			{
+                setMeshVisible(true);
 				_meshRenderer.material.color = Color.Lerp(_activeColor, _inactiveColor, timer / _fadeTime);
 				timer += Time.deltaTime;
 				yield return null;
 			}
+            setMeshVisible(false);
 		}
 
 		#endregion
@@ -54,9 +54,13 @@ namespace TrapezeGrid
 
 		public void Colorize()
 		{
+
 			StartCoroutine(Fade());
 		}
-
+        public void setMeshVisible(bool visible)
+        {
+            _meshRenderer.enabled = visible;
+        }
 		#endregion
 	}
 }
