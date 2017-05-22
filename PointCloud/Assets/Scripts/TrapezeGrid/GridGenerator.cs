@@ -17,6 +17,8 @@ namespace TrapezeGrid
 
 		private AMeshGenerator _meshGenerator;
 		private CellColorizer[,,] _cellColorizers;
+        private GameObject[,,] _cells;
+        private HashSet<GameObject> _cellsHit;
         private bool _visibilityEnabled = false;
 		
         #endregion
@@ -71,7 +73,7 @@ namespace TrapezeGrid
 
 			cell.AddComponent<MeshRenderer>().material = _cellMaterial;
 			cell.AddComponent<MeshFilter>().mesh = _meshGenerator.GenerateMesh(x, y, z);
-
+            _cells[z, y, x] = cell;
 			cell.transform.parent = transform;
 
 			_cellColorizers[z, y, x] = cell.AddComponent<CellColorizer>();
@@ -81,7 +83,9 @@ namespace TrapezeGrid
 
 		private void instantiateCells()
 		{
+            _cellsHit = new HashSet<GameObject>();
 			_cellColorizers = new CellColorizer[_gridData.DepthSteps, _gridData.VerticalSteps, _gridData.HorizontalSteps];
+            _cells = new GameObject[_gridData.DepthSteps, _gridData.VerticalSteps, _gridData.HorizontalSteps];
 
 			for (uint z = 0; z < _gridData.DepthSteps; z++)
 			{
@@ -123,6 +127,10 @@ namespace TrapezeGrid
 					break;
 			}
 		}
+        private void saveCell(GameObject cell2save)
+        {
+            if(_cellsHit.Add(cell2save)) Debug.Log(cell2save);
+        }
 
 		#endregion
 
@@ -132,6 +140,7 @@ namespace TrapezeGrid
 		{
 			int[] indices = _gridWorldConverter.WorldToGrid(position);
             ((CellColorizer)_cellColorizers.GetValue(indices)).Colorize(toggleMesh);
+            saveCell((GameObject)_cells.GetValue(indices));
         }
 
         #endregion
