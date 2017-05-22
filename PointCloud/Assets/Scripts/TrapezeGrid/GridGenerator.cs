@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace TrapezeGrid
 {
-	[ExecuteInEditMode]
+	//[ExecuteInEditMode]
 	[RequireComponent(typeof(GridData))]
 	public class GridGenerator : MonoBehaviour
 	{
@@ -16,7 +16,7 @@ namespace TrapezeGrid
 		private GridWorldConverter _gridWorldConverter;
 
 		private AMeshGenerator _meshGenerator;
-
+        [SerializeField]
 		private CellColorizer[,,] _cellColorizers;
 
 		#endregion
@@ -39,7 +39,10 @@ namespace TrapezeGrid
 		{
 			_gridData = GetComponent<GridData>();
 			_gridWorldConverter = new GridWorldConverter(_gridData);
-		}
+            removeCells();
+            setMeshGenerator();
+            instantiateCells();
+        }
 
 		void Update()
 		{
@@ -112,7 +115,6 @@ namespace TrapezeGrid
 		public void ColorizeCell(Vector3 position)
 		{
 			int[] indices = _gridWorldConverter.WorldToGrid(position);
-
 			((CellColorizer)_cellColorizers.GetValue(indices)).Colorize();
 		}
 
