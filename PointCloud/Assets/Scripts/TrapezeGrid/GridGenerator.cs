@@ -129,7 +129,7 @@ namespace TrapezeGrid
 		}
         private void saveCell(GameObject cell2save)
         {
-            if(_cellsHit.Add(cell2save)) Debug.Log(cell2save);
+           // if(_cellsHit.Add(cell2save)) Debug.Log(cell2save);
         }
 
 		#endregion
@@ -139,8 +139,6 @@ namespace TrapezeGrid
 		public void ColorizeCell(Vector3 position)
 		{
 			int[] indices = _gridWorldConverter.WorldToGrid(position);
-            Debug.Log(indices);
-
             ((CellColorizer)_cellColorizers.GetValue(indices)).Colorize(toggleMesh);
             saveCell((GameObject)_cells.GetValue(indices));
         }

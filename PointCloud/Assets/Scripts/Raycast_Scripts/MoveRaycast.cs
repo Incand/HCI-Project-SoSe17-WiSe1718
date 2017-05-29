@@ -63,9 +63,8 @@ public class MoveRaycast : MonoBehaviour
         float x = getSineValue(_gridData.WidthAngleRadian, frequencyHorizontal);
         float y = getSineValue(_gridData.HeightAngleRadian, frequencyVertical);
 
-        bool hitSomething = serialComm.distance < _gridData.Depth*100;
+        bool hitSomething = (float)(serialComm.distance/100.0f) < _gridData.Depth && (float)(serialComm.distance / 100.0f)>_gridData.DepthOffset;
         Vector3 polar = transform.localToWorldMatrix * GridWorldConverter.PolarToCartesian( new Vector3(x, y, serialComm.distance/100.0f));
-        Debug.Log(polar);
 
         if (hitSomething && !lastHit)
 		{
@@ -73,11 +72,8 @@ public class MoveRaycast : MonoBehaviour
 		}
 		else if (hitSomething && lastHit)
 		{
+            Debug.Log("stay");
 			OnHitStay.Invoke(polar);
-		}
-		else if (!hitSomething && lastHit)
-		{
-			OnHitExit.Invoke(new Vector3(0.0f, 0.0f, _gridData.Depth));
 		}
 
 		lastHit = hitSomething;
