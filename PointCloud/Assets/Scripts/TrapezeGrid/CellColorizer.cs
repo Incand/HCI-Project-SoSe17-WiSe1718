@@ -31,32 +31,35 @@ namespace TrapezeGrid
 			_meshRenderer = GetComponent<MeshRenderer>();
 		}
 
-
-
 		#endregion
 
 		#region PRIVATE_METHODS
 
-		private IEnumerator Fade()
+		private IEnumerator Fade(bool isMeshVisible)
 		{
 			float timer = 0.0f;
 			while (timer < _fadeTime)
 			{
+                setMeshVisible(true);
 				_meshRenderer.material.color = Color.Lerp(_activeColor, _inactiveColor, timer / _fadeTime);
 				timer += Time.deltaTime;
 				yield return null;
 			}
+            setMeshVisible(isMeshVisible);
 		}
 
 		#endregion
 
 		#region PUBLIC_METHODS
 
-		public void Colorize()
+		public void Colorize(bool isMeshVisible)
 		{
-			StartCoroutine(Fade());
+			StartCoroutine(Fade(isMeshVisible));
 		}
-
+        public void setMeshVisible(bool visible)
+        {
+            _meshRenderer.enabled = visible;
+        }
 		#endregion
 	}
 }

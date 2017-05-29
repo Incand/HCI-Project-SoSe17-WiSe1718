@@ -16,11 +16,12 @@ namespace TrapezeGrid
 		private GridWorldConverter _gridWorldConverter;
 
 		private AMeshGenerator _meshGenerator;
-        [SerializeField]
 		private CellColorizer[,,] _cellColorizers;
-
-		#endregion
-
+        private GameObject[,,] _cells;
+        private HashSet<GameObject> _cellsHit;
+        private bool _visibilityEnabled = false;
+		
+        #endregion
 		#region EDITOR_INTERFACE
 
 		[HeaderAttribute("Rendering")]
@@ -28,7 +29,10 @@ namespace TrapezeGrid
 		[SerializeField]
 		private MeshType _meshType = MeshType.COMPLEX;
 
-		[SerializeField]
+        [SerializeField]
+        private bool toggleMesh = false;
+
+        [SerializeField]
 		private Material _cellMaterial;
 
 		#endregion
@@ -47,12 +51,17 @@ namespace TrapezeGrid
 
 		void Update()
 		{
-			if (Application.isPlaying)
+            if ((toggleMesh && !_visibilityEnabled) || (!toggleMesh && _visibilityEnabled))
+            {
+                toggleGridVisibility();
+            }
+            if (Application.isPlaying)
 				return;
-
 			removeCells();
 			setMeshGenerator();
 			instantiateCells();
+
+           
 		}
 
 		#endregion
@@ -65,16 +74,21 @@ namespace TrapezeGrid
 
 			cell.AddComponent<MeshRenderer>().material = _cellMaterial;
 			cell.AddComponent<MeshFilter>().mesh = _meshGenerator.GenerateMesh(x, y, z);
+
 			_cellColorizers[z, y, x] = cell.AddComponent<CellColorizer>();
 
 			cell.transform.position = transform.position;
 			//cell.transform.rotation = transform.rotation;
 			cell.transform.parent = transform;
+
+			cell.GetComponent<CellColorizer>().setMeshVisible(false);
 		}
 
 		private void instantiateCells()
 		{
+            _cellsHit = new HashSet<GameObject>();
 			_cellColorizers = new CellColorizer[_gridData.DepthSteps, _gridData.VerticalSteps, _gridData.HorizontalSteps];
+            _cells = new GameObject[_gridData.DepthSteps, _gridData.VerticalSteps, _gridData.HorizontalSteps];
 
 			for (uint z = 0; z < _gridData.DepthSteps; z++)
 			{
@@ -88,7 +102,14 @@ namespace TrapezeGrid
 			}
 		}
 
-
+        private void toggleGridVisibility()
+        {
+            foreach(CellColorizer cellColorizer in _cellColorizers)
+            {
+                cellColorizer.setMeshVisible(toggleMesh);
+            }
+            _visibilityEnabled = toggleMesh;
+        }
 		private void removeCells()
 		{
 			int childCount = transform.childCount;
@@ -109,6 +130,10 @@ namespace TrapezeGrid
 					break;
 			}
 		}
+        private void saveCell(GameObject cell2save)
+        {
+           // if(_cellsHit.Add(cell2save)) Debug.Log(cell2save);
+        }
 
 		#endregion
 
@@ -117,14 +142,13 @@ namespace TrapezeGrid
 		public void ColorizeCell(Vector3 position)
 		{
 			int[] indices = _gridWorldConverter.WorldToGrid(position);
-			Debug.DrawLine(transform.position, position, Color.blue, 2.0f, false);
-			Debug.Log(String.Format("x:{0}, y:{1}, z:{2}", indices[2], indices[1], indices[0]));
-			((CellColorizer)_cellColorizers.GetValue(indices)).Colorize();
-		}
+            ((CellColorizer)_cellColorizers.GetValue(indices)).Colorize(toggleMesh);
+            //saveCell((GameObject)_cells.GetValue(indices));
+        }
 
-		#endregion
+        #endregion
 
-	}
+    }
 
 	public enum MeshType { SIMPLE, COMPLEX };
 }

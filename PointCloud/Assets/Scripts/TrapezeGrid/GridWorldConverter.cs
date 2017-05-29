@@ -49,8 +49,9 @@ namespace TrapezeGrid
 				(int)((polar.y + 0.5f * _gridData.HeightAngleRadian) / _gridData.VerticalStepSizeRadian  ),
 				(int)((polar.x + 0.5f * _gridData.WidthAngleRadian ) / _gridData.HorizontalStepSizeRadian)
 			};
-
-			return result;
+            
+            
+            return result;
 		}
 
 		#endregion
