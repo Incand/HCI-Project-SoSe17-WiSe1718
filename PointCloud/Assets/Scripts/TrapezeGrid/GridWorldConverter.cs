@@ -21,9 +21,9 @@ namespace TrapezeGrid
     	 */
 		public Vector3 GridToWorld(uint x, uint y, uint z)
 		{
-			if (x > _gridData.HorizontalSteps + 1 ||
-				y > _gridData.VerticalSteps   + 1 ||
-				z > _gridData.DepthSteps      + 1   )
+			if (x > _gridData.HorizontalSteps ||
+				y > _gridData.VerticalSteps   ||
+				z > _gridData.DepthSteps        )
 				throw new IndexOutOfRangeException();
 
 			// (azimuth, polar, radial)
@@ -33,7 +33,7 @@ namespace TrapezeGrid
 						_gridData.DepthOffset       + z * _gridData.DepthStepSizeLinear
 			);
 
-			return PolarToCartesian(polarCoords);
+			return _gridData.transform.localToWorldMatrix * PolarToCartesian(polarCoords);
 		}
 
 
@@ -42,9 +42,9 @@ namespace TrapezeGrid
 		 */
 		public int[] WorldToGrid(Vector3 position)
 		{
-			Vector3 polar = CartesianToPolar(position);
+			Vector3 polar = CartesianToPolar(_gridData.transform.InverseTransformPoint(position));
 
-			int[] result = new int[3] { 
+			int[] result = new int[3] {
 				(int)((polar.z -        _gridData.DepthOffset      ) / _gridData.DepthStepSizeLinear     ),
 				(int)((polar.y + 0.5f * _gridData.HeightAngleRadian) / _gridData.VerticalStepSizeRadian  ),
 				(int)((polar.x + 0.5f * _gridData.WidthAngleRadian ) / _gridData.HorizontalStepSizeRadian)

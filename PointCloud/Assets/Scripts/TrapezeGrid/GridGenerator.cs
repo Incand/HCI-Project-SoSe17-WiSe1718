@@ -39,6 +39,7 @@ namespace TrapezeGrid
 		{
 			_gridData = GetComponent<GridData>();
 			_gridWorldConverter = new GridWorldConverter(_gridData);
+
             removeCells();
             setMeshGenerator();
             instantiateCells();
@@ -64,10 +65,11 @@ namespace TrapezeGrid
 
 			cell.AddComponent<MeshRenderer>().material = _cellMaterial;
 			cell.AddComponent<MeshFilter>().mesh = _meshGenerator.GenerateMesh(x, y, z);
-
-			cell.transform.parent = transform;
-
 			_cellColorizers[z, y, x] = cell.AddComponent<CellColorizer>();
+
+			cell.transform.position = transform.position;
+			//cell.transform.rotation = transform.rotation;
+			cell.transform.parent = transform;
 		}
 
 		private void instantiateCells()
@@ -115,6 +117,8 @@ namespace TrapezeGrid
 		public void ColorizeCell(Vector3 position)
 		{
 			int[] indices = _gridWorldConverter.WorldToGrid(position);
+			Debug.DrawLine(transform.position, position, Color.blue, 2.0f, false);
+			Debug.Log(String.Format("x:{0}, y:{1}, z:{2}", indices[2], indices[1], indices[0]));
 			((CellColorizer)_cellColorizers.GetValue(indices)).Colorize();
 		}
 
