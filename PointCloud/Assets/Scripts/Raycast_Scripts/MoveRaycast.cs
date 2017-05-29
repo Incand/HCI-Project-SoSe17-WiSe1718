@@ -12,8 +12,9 @@ public class MoveRaycast : MonoBehaviour
 	public class HitEvent : UnityEvent<Vector3> { }
 
 	private GridData _gridData;
+   
 
-	private bool lastHit = false;
+    private bool lastHit = false;
 
 	#endregion
 
@@ -44,6 +45,8 @@ public class MoveRaycast : MonoBehaviour
 	[SerializeField]
 	private HitEvent NoHitStay;
 
+    //distance in cm
+    private SerialComm serialComm;
 	#endregion
 
 	#region UNITY_EXECUTION_CHAIN_METHODS
@@ -51,28 +54,32 @@ public class MoveRaycast : MonoBehaviour
 	void Awake()
 	{
 		_gridData = GetComponent<GridData>();
+        serialComm = GetComponent<SerialComm>();
 	}
 
 	// Update is called once per frame
 	void Update()
 	{
-		RaycastHit hit;
-		bool hitSomething = Physics.Raycast(transform.position, getDirection(), out hit, _gridData.Depth);
+        float x = getSineValue(_gridData.WidthAngleRadian, frequencyHorizontal);
+        float y = getSineValue(_gridData.HeightAngleRadian, frequencyVertical);
 
-		if (hitSomething && !lastHit)
+        bool hitSomething = serialComm.distance < _gridData.Depth*100;
+        Vector3 polar = transform.localToWorldMatrix * GridWorldConverter.PolarToCartesian( new Vector3(x, y, serialComm.distance/100.0f));
+        Debug.Log(polar);
+
+        if (hitSomething && !lastHit)
 		{
-			OnHitEnter.Invoke(hit.point);
+			OnHitEnter.Invoke(polar);
 		}
 		else if (hitSomething && lastHit)
 		{
-			OnHitStay.Invoke(hit.point);
+			OnHitStay.Invoke(polar);
 		}
 		else if (!hitSomething && lastHit)
 		{
 			OnHitExit.Invoke(new Vector3(0.0f, 0.0f, _gridData.Depth));
 		}
 
-		Debug.DrawRay(transform.position, getDirection(), Color.black, 0.01f);
 		lastHit = hitSomething;
 	}
 

@@ -139,6 +139,8 @@ namespace TrapezeGrid
 		public void ColorizeCell(Vector3 position)
 		{
 			int[] indices = _gridWorldConverter.WorldToGrid(position);
+            Debug.Log(indices);
+
             ((CellColorizer)_cellColorizers.GetValue(indices)).Colorize(toggleMesh);
             saveCell((GameObject)_cells.GetValue(indices));
         }

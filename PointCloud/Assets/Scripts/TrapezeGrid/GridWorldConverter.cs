@@ -42,15 +42,17 @@ namespace TrapezeGrid
 		 */
 		public int[] WorldToGrid(Vector3 position)
 		{
-			Vector3 polar = CartesianToPolar(position);
+            
+            Vector3 polar = CartesianToPolar(_gridData.transform.worldToLocalMatrix*position);
 
 			int[] result = new int[3] { 
 				(int)((polar.z -        _gridData.DepthOffset      ) / _gridData.DepthStepSizeLinear     ),
 				(int)((polar.y + 0.5f * _gridData.HeightAngleRadian) / _gridData.VerticalStepSizeRadian  ),
 				(int)((polar.x + 0.5f * _gridData.WidthAngleRadian ) / _gridData.HorizontalStepSizeRadian)
 			};
-
-			return result;
+            
+            
+            return result;
 		}
 
 		#endregion
