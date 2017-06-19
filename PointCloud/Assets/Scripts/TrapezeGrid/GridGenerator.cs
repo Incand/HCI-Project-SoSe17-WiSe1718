@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -20,7 +19,7 @@ namespace TrapezeGrid
         private GameObject[,,] _cells;
         private HashSet<GameObject> _cellsHit;
         private bool _visibilityEnabled = false;
-		
+
         #endregion
 		#region EDITOR_INTERFACE
 
@@ -61,7 +60,7 @@ namespace TrapezeGrid
 			setMeshGenerator();
 			instantiateCells();
 
-           
+
 		}
 
 		#endregion

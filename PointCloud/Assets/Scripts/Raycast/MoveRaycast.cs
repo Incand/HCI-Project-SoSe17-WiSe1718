@@ -14,7 +14,7 @@ public class MoveRaycast : MonoBehaviour
 	private GridData _gridData;
    
 
-    private bool lastHit = false;
+	private bool lastHit = false;
 
 	#endregion
 
