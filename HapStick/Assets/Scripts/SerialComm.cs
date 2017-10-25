@@ -1,51 +1,49 @@
-﻿using UnityEngine;
+﻿
+/**
+ *  Haptics Framework
+ *
+ *  Copyright 2017 by UHH HCI 
+ *  Oscar Ariza <ariza@informatik.uni-hamburg.de>
+ *
+ */
+
+using UnityEngine;
 using System.Collections;
 
 using System.IO.Ports;
 using System;
-using System.Text;
 
 public class SerialComm : MonoBehaviour
 {
     private enum SCOMMANDS
     {
         SAON,
+        SBON,
+        SCON,
+        SDON,
         SAOFF,
+        SBOFF,
+        SCOFF,
+        SDOFF
     };
-    
-    public string port = "COM10";
-    public int portBaudRate = 115200;
+
+    public string port = "COM4";
+    public int portBaudRate = 9600;
     public int portReadTimeout = 50;
 
-    public float distance = 0.0f;
-
     private SerialPort stream;
-
-    void readDistance(String s)
-    {
-        if(!float.TryParse(s, out distance))
-        {
-            distance = -1.0f;
-        }
-        Debug.Log(s);
-    }
-
 
     void Start ()
     {
         stream = new SerialPort(port, portBaudRate);
         stream.ReadTimeout = portReadTimeout;
-        stream.Parity = Parity.None;
-        stream.StopBits = StopBits.One;
-        stream.DataBits = 8;
-        stream.Handshake = Handshake.None;
         stream.Open();
 
         StartCoroutine
         (
             AsynchronousReadFromArduino
             (
-                readDistance
+                (string s) => Debug.Log(s)
                 //,() => Debug.LogError("Error reading the serial-comm stream!")
                 //,10f // Timeout in seconds
             )
@@ -57,6 +55,15 @@ public class SerialComm : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Alpha1)) WriteToArduino(SCOMMANDS.SAON.ToString());
         if (Input.GetKeyUp(KeyCode.Alpha1)) WriteToArduino(SCOMMANDS.SAOFF.ToString());
+
+        if (Input.GetKeyDown(KeyCode.Alpha2)) WriteToArduino(SCOMMANDS.SBON.ToString());
+        if (Input.GetKeyUp(KeyCode.Alpha2)) WriteToArduino(SCOMMANDS.SBOFF.ToString());
+
+        if (Input.GetKeyDown(KeyCode.Alpha3)) WriteToArduino(SCOMMANDS.SCON.ToString());
+        if (Input.GetKeyUp(KeyCode.Alpha3)) WriteToArduino(SCOMMANDS.SCOFF.ToString());
+
+        if (Input.GetKeyDown(KeyCode.Alpha4)) WriteToArduino(SCOMMANDS.SDON.ToString());
+        if (Input.GetKeyUp(KeyCode.Alpha4)) WriteToArduino(SCOMMANDS.SDOFF.ToString());
     }
 
     public void WriteToArduino(string message)
@@ -78,17 +85,6 @@ public class SerialComm : MonoBehaviour
             try
             {
                 dataString = stream.ReadLine();
-                stream.DiscardOutBuffer();
-                stream.DiscardInBuffer();
-
-                /*
-                int len = 3;/// stream.BytesToRead;
-                if (len == 0)
-                    continue;
-                byte[] buffer = new byte[len];
-                stream.Read(buffer, 0, len);
-                dataString = ASCIIEncoding.ASCII.GetString(buffer);
-                */
             }
             catch (TimeoutException)
             {
@@ -107,7 +103,7 @@ public class SerialComm : MonoBehaviour
             diff = nowTime - initialTime;
 
         } while (diff.Milliseconds < timeout);
-        
+
         if (fail != null)
             fail();
         yield return null;
