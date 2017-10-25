@@ -18,8 +18,9 @@ public class SignalGeneration : MonoBehaviour {
 		get { return _currentValue; }
 	}
 
+        private class NewSignalEvent : UnityEvent<float>{}
 	[SerializeField]
-	private UnityEvent<float> _onNewSignalValue = new UnityEvent<float>();
+	private NewSignalEvent _onNewSignalValue = new NewSignalEvent();
 
 	void FixedUpdate() {
 		float lastTime = 0.0f;
@@ -39,8 +40,7 @@ public class SignalGeneration : MonoBehaviour {
 					last, 
 					new Keyframe (_graph.keys[last].time, _currentValue)
 				);
-			}
-			yield return new WaitForSeconds (ONE_SIXTIETH);
+		        }
 		}
 	}
 
