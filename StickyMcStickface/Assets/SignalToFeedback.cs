@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Signal2Feedback : MonoBehaviour {
+public class SignalToFeedback : MonoBehaviour {
     public HapStickController hapcon;
     // Use this for initialization
 
