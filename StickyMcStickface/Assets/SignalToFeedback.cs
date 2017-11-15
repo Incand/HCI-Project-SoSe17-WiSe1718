@@ -36,9 +36,12 @@ public class SignalToFeedback : MonoBehaviour {
     {
         while (true)
         {
-            yield return new WaitForSeconds(0.25f);
-            hapcon.durationMS = 250;
-            hapcon.amplitud = SonicSignalFeedback;
+            yield return new WaitForSeconds(0.125f);
+            hapcon.durationMS = 125;
+            hapcon.amplitud = 255;
+            hapcon.frequency = SonicSignalFeedback;
+            hapcon.cycles = (byte)(hapcon.frequency * hapcon.durationMS / 1000);
+
             hapcon.triggerPiezo(true);
             Debug.Log("Feedback!");
         }
