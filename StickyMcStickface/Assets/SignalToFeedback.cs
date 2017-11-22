@@ -15,6 +15,14 @@ public class SignalToFeedback : MonoBehaviour {
     [Range(100.0f, 600.0f)]
     private float _maxSonicSignal = 200.0f;
 
+	[SerializeField]
+	private AnimationCurve _sonicSignalToFrequency;
+
+	[SerializeField]
+	[Range(2.5f, 7.5f)]
+	private float _sonicMaxFrequency = 5.0f;
+
+
     [Header("Infrared Signal Processing")]
     [Range(10.0f, 100.0f)]
     [SerializeField]
@@ -23,6 +31,9 @@ public class SignalToFeedback : MonoBehaviour {
     [Range(100.0f, 600.0f)]
     [SerializeField]
     private float _maxSignal = 300.0f;
+
+	[SerializeField]
+	private AnimationCurve _infraSignalToFrequency;
 
     [SerializeField]
     private float mean = 0;
@@ -36,10 +47,10 @@ public class SignalToFeedback : MonoBehaviour {
     {
         while (true)
         {
-            yield return new WaitForSeconds(0.125f);
+			yield return new WaitForSeconds(1.0f / SonicMetaFrequency);
             hapcon.durationMS = 125;
             hapcon.amplitud = 255;
-            hapcon.frequency = SonicSignalFeedback;
+            hapcon.frequency = 65;
             hapcon.cycles = (byte)(hapcon.frequency * hapcon.durationMS / 1000);
 
             hapcon.triggerPiezo(true);
@@ -59,13 +70,13 @@ public class SignalToFeedback : MonoBehaviour {
         return (laserDistance + sonicDistance) * 0.5f;
     }
 
-    private byte SonicSignalFeedback
+    private float SonicMetaFrequency
     {
         get
         {
             float clampedSignal = Mathf.Clamp(hapcon.UltrasonicSensorDistance, _minSonicSignal, _maxSonicSignal);
-            float cSNorm = 1.0f - (clampedSignal - _minSignal) / (_maxSignal - _minSignal);
-            return (byte)(255 * cSNorm);
+			float cSNorm = (clampedSignal - _minSonicSignal) / (_maxSonicSignal - _minSonicSignal);
+			return _sonicMaxFrequency * _sonicSignalToFrequency.Evaluate (cSNorm);
         }
     }
     #endregion
