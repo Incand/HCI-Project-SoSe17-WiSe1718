@@ -19,7 +19,7 @@ public class SignalToFeedback : MonoBehaviour {
 	private AnimationCurve _sonicSignalToFrequency;
 
 	[SerializeField]
-	[Range(2.5f, 7.5f)]
+	[Range(5.0f, 15.0f)]
 	private float _sonicMaxFrequency = 5.0f;
 
 
@@ -38,11 +38,28 @@ public class SignalToFeedback : MonoBehaviour {
     [SerializeField]
     private float mean = 0;
 
+    private float _timer = 0.0f;
+    private float _maxTime = 10.0f;
+
 	void Start () {
-        IEnumerator corout = _sonicFeedbackCoroutine();
-        StartCoroutine(corout);
+        //IEnumerator corout = _sonicFeedbackCoroutine();
+        //StartCoroutine(corout);
 	}
+
+    void FixedUpdate()
+    {
+        _timer += Time.fixedDeltaTime;
+        float smf = SonicMetaFrequency;
+        _maxTime = 1.0f / smf;
+        if(_timer >= _maxTime)
+        {
+            _timer -= _maxTime;
+            hapcon.triggerPiezo(true);
+            Debug.Log("Feedback!");
+        }
+    }
 	
+    /*
     private IEnumerator _sonicFeedbackCoroutine()
     {
         while (true)
@@ -50,20 +67,14 @@ public class SignalToFeedback : MonoBehaviour {
 			yield return new WaitForSeconds(1.0f / SonicMetaFrequency);
             hapcon.durationMS = 125;
             hapcon.amplitud = 255;
-            hapcon.frequency = 65;
+            hapcon.frequency = 255;
             hapcon.cycles = (byte)(hapcon.frequency * hapcon.durationMS / 1000);
 
             hapcon.triggerPiezo(true);
             Debug.Log("Feedback!");
         }
-    }
+    }*/
     
-
-	// Update is called once per frame
-	void FixedUpdate () {
-
-	}
-
     #region SIGNAL_PROCESSING
     private float CombineMean(float laserDistance, float sonicDistance)
     {
@@ -74,9 +85,10 @@ public class SignalToFeedback : MonoBehaviour {
     {
         get
         {
+            Debug.Log("Sonic Distance: " + hapcon.UltrasonicSensorDistance);
             float clampedSignal = Mathf.Clamp(hapcon.UltrasonicSensorDistance, _minSonicSignal, _maxSonicSignal);
 			float cSNorm = (clampedSignal - _minSonicSignal) / (_maxSonicSignal - _minSonicSignal);
-			return _sonicMaxFrequency * _sonicSignalToFrequency.Evaluate (cSNorm);
+            return Mathf.Clamp(_sonicMaxFrequency * _sonicSignalToFrequency.Evaluate(cSNorm), 1.0f, _sonicMaxFrequency);
         }
     }
     #endregion
