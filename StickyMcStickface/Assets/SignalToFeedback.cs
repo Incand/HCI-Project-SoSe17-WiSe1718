@@ -85,7 +85,6 @@ public class SignalToFeedback : MonoBehaviour {
     {
         get
         {
-            Debug.Log("Sonic Distance: " + hapcon.UltrasonicSensorDistance);
             float clampedSignal = Mathf.Clamp(hapcon.UltrasonicSensorDistance, _minSonicSignal, _maxSonicSignal);
 			float cSNorm = (clampedSignal - _minSonicSignal) / (_maxSonicSignal - _minSonicSignal);
             return Mathf.Clamp(_sonicMaxFrequency * _sonicSignalToFrequency.Evaluate(cSNorm), 1.0f, _sonicMaxFrequency);
