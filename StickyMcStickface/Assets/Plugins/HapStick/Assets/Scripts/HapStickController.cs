@@ -276,9 +276,7 @@ public class HapStickController : MonoBehaviour
                     waitingForFirstQuaternion = false;
                 }
 
-                cube.transform.rotation = 
-                    Quaternion.Euler(AngleOffsetX, AngleOffsetY, AngleOffsetZ) * 
-                    (centeringQuaternion * deviceQuaternion);
+                cube.transform.rotation = getIMUOrientation();
 
                 if (debugPackets) Debug.Log(string.Format("RX: {0} {1} {2} {3}", quaternionData[0], quaternionData[1], quaternionData[2], quaternionData[3]));
 
@@ -371,6 +369,12 @@ public class HapStickController : MonoBehaviour
                 LostPacketCounter++;
             }
         }
+    }
+
+    public Quaternion getIMUOrientation()
+    {
+        return Quaternion.Euler(AngleOffsetX, AngleOffsetY, AngleOffsetZ)
+            * (centeringQuaternion * deviceQuaternion);
     }
 
     void Start()

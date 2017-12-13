@@ -2,6 +2,32 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public struct MathUtil
+{
+    public float Gauss(float x, float stddev, float mean)
+    {
+        float exp = stddev * (x - mean);
+        return Mathf.Exp(-0.5f * (exp * exp));
+    }
+}
+
+public class Afterimage
+{
+    private Quaternion orientation = Quaternion.identity;
+    private float startTime;
+    
+    public Afterimage(Quaternion orientation)
+    {
+        this.orientation = orientation;
+        startTime = Time.time;
+    }
+
+    public void Update()
+    {
+        startTime += Time.fixedDeltaTime;
+    }
+}
+
 public class SignalToFeedback : MonoBehaviour {
     public HapStickController hapcon;
     // Use this for initialization
@@ -38,8 +64,23 @@ public class SignalToFeedback : MonoBehaviour {
     [SerializeField]
     private float mean = 0;
 
+    [Header("After Image Configuration")]
+
     private float _timer = 0.0f;
     private float _maxTime = 10.0f;
+    
+    private Queue<Afterimage> _afterimages = new Queue<Afterimage>();
+
+    [SerializeField]
+    private float _angleGaussStdDev = 1.0f;
+
+    [SerializeField]
+    private float _afterimagesLifetime = 0.5f;
+
+    [SerializeField]
+    private AnimationCurve _amplitudeFalloff = new AnimationCurve();
+
+
 
 	void Start () {
         //IEnumerator corout = _sonicFeedbackCoroutine();
@@ -48,6 +89,15 @@ public class SignalToFeedback : MonoBehaviour {
 
     void FixedUpdate()
     {
+        if (hapcon.UltrasonicSensorDistance < _maxSonicSignal)
+            _afterimages.Enqueue(new Afterimage(hapcon.getIMUOrientation()));
+
+        _afterimages.
+        foreach(Afterimage ai in _afterimages)
+        {
+            
+        }
+        /*
         _timer += Time.fixedDeltaTime;
         float smf = SonicMetaFrequency;
         _maxTime = 1.0f / smf;
@@ -57,6 +107,7 @@ public class SignalToFeedback : MonoBehaviour {
             hapcon.triggerPiezo(true);
             Debug.Log("Feedback!");
         }
+        */
     }
 	
     /*
