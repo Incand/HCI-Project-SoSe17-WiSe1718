@@ -4,29 +4,17 @@ using UnityEngine;
 
 public struct MathUtil
 {
-    public float Gauss(float x, float stddev, float mean)
+    public static float SignedAngle(Vector3 from, Vector3 to)
     {
-        float exp = stddev * (x - mean);
-        return Mathf.Exp(-0.5f * (exp * exp));
+        Vector3 xzFrom = new Vector3(from.x, 0.0f, from.z);
+        Vector3 xzTo = new Vector3(to.x, 0.0f, to.z);
+        float angle = Vector3.Angle(xzFrom, xzTo);
+        if (Vector3.Cross(xzFrom, xzTo).y < 0)
+            return -angle;
+        return angle;
     }
 }
 
-public class Afterimage
-{
-    private Quaternion orientation = Quaternion.identity;
-    private float startTime;
-    
-    public Afterimage(Quaternion orientation)
-    {
-        this.orientation = orientation;
-        startTime = Time.time;
-    }
-
-    public void Update()
-    {
-        startTime += Time.fixedDeltaTime;
-    }
-}
 
 public class SignalToFeedback : MonoBehaviour {
     public HapStickController hapcon;
@@ -72,7 +60,7 @@ public class SignalToFeedback : MonoBehaviour {
     private Queue<Afterimage> _afterimages = new Queue<Afterimage>();
 
     [SerializeField]
-    private float _angleGaussStdDev = 1.0f;
+    private float _angleGaussStdDev = 10.0f;
 
     [SerializeField]
     private float _afterimagesLifetime = 0.5f;
@@ -81,33 +69,43 @@ public class SignalToFeedback : MonoBehaviour {
     private AnimationCurve _amplitudeFalloff = new AnimationCurve();
 
 
-
 	void Start () {
+        Afterimage.MAX_LIFETIME = _afterimagesLifetime;
         //IEnumerator corout = _sonicFeedbackCoroutine();
         //StartCoroutine(corout);
 	}
 
-    void FixedUpdate()
+    private float GetSummedGaussian(float angle)
     {
-        if (hapcon.UltrasonicSensorDistance < _maxSonicSignal)
-            _afterimages.Enqueue(new Afterimage(hapcon.getIMUOrientation()));
-
-        _afterimages.
+        float result = 0.0f;
         foreach(Afterimage ai in _afterimages)
         {
-            
+            result += ai.GaussLike(angle);
         }
-        /*
-        _timer += Time.fixedDeltaTime;
-        float smf = SonicMetaFrequency;
-        _maxTime = 1.0f / smf;
-        if(_timer >= _maxTime)
+        return result;
+    }
+
+    void Update()
+    {
+        foreach(Afterimage ai in _afterimages)
+            ai.Update(Time.deltaTime);
+
+        if (_afterimages.Peek().Done)
+            _afterimages.Dequeue();
+
+        float angle = MathUtil.SignedAngle(Vector3.forward,
+            hapcon.getIMUOrientation() * Vector3.forward);
+
+        if (hapcon.UltrasonicSensorDistance < _maxSonicSignal)
+            _afterimages.Enqueue(new Afterimage(angle));
+
+        float[] angles = { -90.0f, -45.0f, 0.0f, 45.0f, 90.0f };
+        foreach(float a in angles)
         {
-            _timer -= _maxTime;
-            hapcon.triggerPiezo(true);
-            Debug.Log("Feedback!");
+            float value = GetSummedGaussian(angle + a);
+            // Signal an actuator
         }
-        */
+
     }
 	
     /*
