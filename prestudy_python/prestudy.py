@@ -3,6 +3,7 @@ import sys
 import os
 import os.path
 import csv
+import random
 
 
 description = 'Tool to create data folder structures and csv\'s for\
@@ -64,11 +65,11 @@ def set_random_distance_function(distrib):
         get_random_distance = _get_random_dist_converge
 
 
-def _get_random_dist_constant():
-    return 0
+def _get_random_dist_constant(mp_num):
+    return round(random.uniform(-35, 35))
 
 
-def _get_random_dist_converge():
+def _get_random_dist_converge(mp_num):
     return 0
 
 
@@ -83,12 +84,12 @@ def write_csv(p_num, mp_num, trials):
         writer = csv.writer(f)
         for i in range(1, trials+1):
             print('Conduction trial no. ' + str(i) + '...')
-            dist = get_random_distance()
+            dist = get_random_distance(mp_num)
             print('Set distance to ' + str(dist) + 'cm from reference '
                   'object.')
             res = prompt_binary('Did the participant answer correctly?',
                                 'y', 'n')
-            row = sp_num + ',' + smp_num + ',' + str(dist) + ',' + str(res)
+            row = [p_num, mp_num, dist, res]
             writer.writerow(row)
     print('Trails done!')
 
