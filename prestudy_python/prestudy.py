@@ -65,30 +65,36 @@ def set_random_distance_function(distrib):
         get_random_distance = _get_random_dist_converge
 
 
-def _get_random_dist_constant(mp_num):
+def _get_random_dist_constant(last_distance, last_result):
     return round(random.uniform(-35, 35))
 
 
-def _get_random_dist_converge(mp_num):
-    return 0
+def _get_random_dist_converge(last_distance, last_result):
+    if last_result is None:
+        return last_distance
+    if last_result:
+        return last_distance * 0.75
+    return last_distance * 1.3
 
 
 def write_csv(p_num, mp_num, trials):
     sp_num, smp_num = str(p_num), str(mp_num)
     if not os.path.exists('./data'):
         os.mkdir('./data')
-    if not os.path.exists('./data/' + sp_num):
-        os.mkdir('./data/' + sp_num)
 
     with open('./data/' + sp_num + '_' + smp_num + '.csv', 'w') as f:
         writer = csv.writer(f)
+        last_dist = 5
+        last_res = None
         for i in range(1, trials+1):
             print('Conduction trial no. ' + str(i) + '...')
-            dist = get_random_distance(mp_num)
+            dist = get_random_distance(last_dist, last_res)
+            last_dist = dist
             print('Set distance to ' + str(dist) + 'cm from reference '
                   'object.')
             res = prompt_binary('Did the participant answer correctly?',
                                 'y', 'n')
+            last_res = res
             row = [p_num, mp_num, dist, res]
             writer.writerow(row)
     print('Trails done!')
