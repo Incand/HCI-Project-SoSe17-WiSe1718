@@ -15,10 +15,18 @@ public struct MathUtil
     }
 }
 
+public enum Sensor
+{
+    LASER,
+    SONIC
+}
 
 public class SignalToFeedback : MonoBehaviour {
     public HapStickController hapcon;
     // Use this for initialization
+
+    [SerializeField]
+    private Sensor feedbackSensor = Sensor.SONIC;
 
     [Header("Sonic Signal Processing")]
     [SerializeField]
@@ -71,8 +79,8 @@ public class SignalToFeedback : MonoBehaviour {
 
 	void Start () {
         Afterimage.MAX_LIFETIME = _afterimagesLifetime;
-        //IEnumerator corout = _sonicFeedbackCoroutine();
-        //StartCoroutine(corout);
+        IEnumerator corout = _feedbackCoroutine();
+        StartCoroutine(corout);
 	}
 
     private float GetSummedGaussian(float angle)
@@ -85,19 +93,23 @@ public class SignalToFeedback : MonoBehaviour {
         return result;
     }
 
+
     void Update()
     {
         foreach(Afterimage ai in _afterimages)
             ai.Update(Time.deltaTime);
 
-        if (_afterimages.Peek().Done)
+        if (_afterimages.Count>0 && _afterimages.Peek().Done)
             _afterimages.Dequeue();
 
         float angle = MathUtil.SignedAngle(Vector3.forward,
             hapcon.getIMUOrientation() * Vector3.forward);
 
-        if (hapcon.UltrasonicSensorDistance < _maxSonicSignal)
-            _afterimages.Enqueue(new Afterimage(angle));
+        if (hapcon.LaserSensorDistance < _maxSonicSignal)
+        { 
+            _afterimages.Enqueue(new Afterimage(0));//angle
+             //hapcon.triggerPiezo(true);
+            }
 
         float[] angles = { -90.0f, -45.0f, 0.0f, 45.0f, 90.0f };
         foreach(float a in angles)
@@ -105,15 +117,16 @@ public class SignalToFeedback : MonoBehaviour {
             float value = GetSummedGaussian(angle + a);
             // Signal an actuator
         }
-
+       // hapcon.triggerPiezo(true, "255,18,7,9");
     }
 	
-    /*
-    private IEnumerator _sonicFeedbackCoroutine()
+    
+    private IEnumerator _feedbackCoroutine()
     {
         while (true)
         {
-			yield return new WaitForSeconds(1.0f / SonicMetaFrequency);
+            float metaFreq = feedbackSensor == Sensor.SONIC ? SonicMetaFrequency : LaserMetaFrequency;
+			yield return new WaitForSeconds(1.0f / metaFreq);
             hapcon.durationMS = 125;
             hapcon.amplitud = 255;
             hapcon.frequency = 255;
@@ -122,7 +135,7 @@ public class SignalToFeedback : MonoBehaviour {
             hapcon.triggerPiezo(true);
             Debug.Log("Feedback!");
         }
-    }*/
+    }
     
     #region SIGNAL_PROCESSING
     private float CombineMean(float laserDistance, float sonicDistance)
@@ -135,6 +148,15 @@ public class SignalToFeedback : MonoBehaviour {
         get
         {
             float clampedSignal = Mathf.Clamp(hapcon.UltrasonicSensorDistance, _minSonicSignal, _maxSonicSignal);
+			float cSNorm = (clampedSignal - _minSonicSignal) / (_maxSonicSignal - _minSonicSignal);
+            return Mathf.Clamp(_sonicMaxFrequency * _sonicSignalToFrequency.Evaluate(cSNorm), 1.0f, _sonicMaxFrequency);
+        }
+    }
+        private float LaserMetaFrequency
+    {
+        get
+        {
+            float clampedSignal = Mathf.Clamp(hapcon.LaserSensorDistance, _minSonicSignal, _maxSonicSignal);
 			float cSNorm = (clampedSignal - _minSonicSignal) / (_maxSonicSignal - _minSonicSignal);
             return Mathf.Clamp(_sonicMaxFrequency * _sonicSignalToFrequency.Evaluate(cSNorm), 1.0f, _sonicMaxFrequency);
         }

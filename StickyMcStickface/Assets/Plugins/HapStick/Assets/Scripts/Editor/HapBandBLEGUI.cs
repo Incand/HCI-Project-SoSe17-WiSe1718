@@ -18,22 +18,7 @@ public class HapBandBLEGUI : Editor
         DrawDefaultInspector();
 
         HapStickController hpbc = (HapStickController)target;
-
-        if (GUILayout.Button("Set Motor Position"))
-        {
-            hpbc.setMotorPosition();
-        }
-
-        if (GUILayout.Button("Calibrate Motor (Backward)"))
-        {
-            hpbc.calibrateMotorBackward();
-        }
-
-        if (GUILayout.Button("Calibrate Motor (Forward)"))
-        {
-            hpbc.calibrateMotorFordward();
-        }
-
+ 
         GUILayout.Space(15);
 
         if (GUILayout.Button("Trigger Feedback"))

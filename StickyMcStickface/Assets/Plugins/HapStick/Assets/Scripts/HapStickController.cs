@@ -26,7 +26,6 @@ public class HapStickController : MonoBehaviour
     public bool debugPackets = false;
     public bool debugPPS = !false; // Packets per second
     public String BatteryLevel = ""; // Batteries stick around 3.7V then slowly sink down to 3.2V. TODO: Display a warning below 3.7V 
-    public String Battery2Level = "";
     //public
     int packetsReceived = 0;
     
@@ -39,10 +38,9 @@ public class HapStickController : MonoBehaviour
     [Tooltip("Values from 0 to 3 for SGAM (System, Gyroscope, Accelerometer and Magnetometer)")]
     public string CalibrationStatus = "0000";
 
-    //[Space(5)]
-    //[Header("I2C Indexes for actuators")]
-    //[Range(1, 5)] public 
-    private byte piezoIndex = 1;
+    [Space(5)]
+    [Header("I2C Indexes for actuators")]
+    [Range(1, 5)] public byte piezoIndex = 1;
 
     const float DRV2667_MIN_FREQ_BASE = 7.8125f;
     const float DRV2667_MAX_FREQ_BASE = 255 * DRV2667_MIN_FREQ_BASE;
@@ -60,7 +58,6 @@ public class HapStickController : MonoBehaviour
     public short LaserSensorDistance = 0;
     public short JoystickX = 0;
     public short JoystickY = 0;
-    [Range(-50, 50)] public short MotorPosition = 0;
 
     //****************************************************************************************************************************
 
@@ -276,7 +273,14 @@ public class HapStickController : MonoBehaviour
                     waitingForFirstQuaternion = false;
                 }
 
+                /*
+                cube.transform.rotation = 
+                    Quaternion.Euler(AngleOffsetX, AngleOffsetY, AngleOffsetZ) * 
+                    (centeringQuaternion * deviceQuaternion);
+                */
+
                 cube.transform.rotation = getIMUOrientation();
+
 
                 if (debugPackets) Debug.Log(string.Format("RX: {0} {1} {2} {3}", quaternionData[0], quaternionData[1], quaternionData[2], quaternionData[3]));
 
@@ -358,7 +362,6 @@ public class HapStickController : MonoBehaviour
             else if (BatteryLevelPacketID.Equals(EncodedID))
             {
                 BatteryLevel = "" + (char)packet[4] + "." + (char)packet[5] + " Volts";
-                Battery2Level = "" + (char)packet[6] + "." + (char)packet[7] + " Volts";
             }
             else
             {
@@ -371,11 +374,13 @@ public class HapStickController : MonoBehaviour
         }
     }
 
+    
     public Quaternion getIMUOrientation()
     {
         return Quaternion.Euler(AngleOffsetX, AngleOffsetY, AngleOffsetZ)
             * (centeringQuaternion * deviceQuaternion);
     }
+
 
     void Start()
     {
@@ -467,22 +472,7 @@ public class HapStickController : MonoBehaviour
     {
         SendPacket("TOGIMU"); // Toggle IMU data transfer
     }
-
-    public void setMotorPosition()
-    {
-        SendPacket("MPP" + (byte)(MotorPosition+50));
-    }
-
-    public void calibrateMotorBackward()
-    {
-        SendPacket("MPB");
-    }
-
-    public void calibrateMotorFordward()
-    {
-        SendPacket("MPF");
-    }
-
+    
     public void ToggleLidarSensor()
     {
         SendPacket("DSLT");
