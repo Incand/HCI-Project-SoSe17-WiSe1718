@@ -81,7 +81,6 @@ def _get_random_dist_converge(last_distance, last_result):
 def write_csv(p_num, mp_num, trials):
     global signs
     random.shuffle(signs)
-    print(signs)
 
     sp_num, smp_num = str(p_num), str(mp_num)
     if not os.path.exists('./data'):
@@ -93,7 +92,6 @@ def write_csv(p_num, mp_num, trials):
         last_res = None
         for i in range(trials):
             print('Conducting trial no. ' + str(i+1) + '...')
-            print(signs[i])
             dist = get_random_distance(last_dist, last_res)
             last_dist = dist
             print('Set distance to ' + str(signs[i] * dist) + 'cm from reference '
