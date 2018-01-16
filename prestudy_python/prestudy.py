@@ -8,6 +8,7 @@ import random
 
 description = 'Tool to create data folder structures and csv\'s for\
               the prestudy'
+signs = None
 
 
 def prompt_binary(question, pos, neg):
@@ -38,8 +39,8 @@ def get_args():
                         help='Relative output path (default: ./data)')
     parser.add_argument('-t', '--trials', dest='trials', type=int,
                         help='Number of trials per participant per midpoint '
-                        '(default: 25)')
-    parser.set_defaults(distrib='constant', out_path='./data', trials=25)
+                        '(default: 24)')
+    parser.set_defaults(distrib='constant', out_path='./data', trials=24)
     return parser.parse_args()
 
 
@@ -66,7 +67,7 @@ def set_random_distance_function(distrib):
 
 
 def _get_random_dist_constant(last_distance, last_result):
-    return round(random.uniform(-35, 35))
+    return round(random.uniform(0, 35))
 
 
 def _get_random_dist_converge(last_distance, last_result):
@@ -78,6 +79,10 @@ def _get_random_dist_converge(last_distance, last_result):
 
 
 def write_csv(p_num, mp_num, trials):
+    global signs
+    random.shuffle(signs)
+    print(signs)
+
     sp_num, smp_num = str(p_num), str(mp_num)
     if not os.path.exists('./data'):
         os.mkdir('./data')
@@ -86,11 +91,12 @@ def write_csv(p_num, mp_num, trials):
         writer = csv.writer(f)
         last_dist = 5
         last_res = None
-        for i in range(1, trials+1):
-            print('Conduction trial no. ' + str(i) + '...')
+        for i in range(trials):
+            print('Conducting trial no. ' + str(i+1) + '...')
+            print(signs[i])
             dist = get_random_distance(last_dist, last_res)
             last_dist = dist
-            print('Set distance to ' + str(dist) + 'cm from reference '
+            print('Set distance to ' + str(signs[i] * dist) + 'cm from reference '
                   'object.')
             res = prompt_binary('Did the participant answer correctly?',
                                 'y', 'n')
@@ -106,6 +112,8 @@ def main():
     path = args.out_path + '/' + str(args.p_num) \
         + '/' + str(args.mp_num)
     handle_aborov(path)
+    global signs
+    signs = [1]*int(args.trials/2) + [-1]*int(args.trials/2)
     write_csv(args.p_num, args.mp_num, args.trials)
 
 
