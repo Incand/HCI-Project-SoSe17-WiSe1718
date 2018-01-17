@@ -10,6 +10,7 @@ description = 'Tool to create data folder structures and csv\'s for\
               the prestudy'
 signs = None
 midpoints = [55, 125, 195, 265]
+filepath = ''
 
 
 def prompt_binary(question, pos, neg):
@@ -46,7 +47,7 @@ def get_args():
 
 
 def handle_aborov(path):
-    if os.path.exists(path):
+    if os.path.isfile(path):
         aborov = prompt_binary('Csv for this participant and midpoint already '
                                'exists.',
                                'a', 'o')
@@ -108,9 +109,11 @@ def write_csv(p_num, mp_num, trials):
 def main():
     args = get_args()
     set_random_distance_function(args.distrib)
-    path = args.out_path + '/' + str(args.p_num) \
-        + '/' + str(args.mp_num)
-    handle_aborov(path)
+    global filepath
+    filepath = args.out_path + '/' + str(args.p_num) \
+        + '_' + str(args.mp_num) + '.csv'
+    handle_aborov(filepath)
+
     global signs
     signs = [1]*int(args.trials/2) + [-1]*int(args.trials/2)
     write_csv(args.p_num, args.mp_num, args.trials)
