@@ -9,6 +9,7 @@ import random
 description = 'Tool to create data folder structures and csv\'s for\
               the prestudy'
 signs = None
+midpoints = [55, 125, 195, 265]
 
 
 def prompt_binary(question, pos, neg):
@@ -95,7 +96,7 @@ def write_csv(p_num, mp_num, trials):
             dist = get_random_distance(last_dist, last_res)
             last_dist = dist
             print('Set distance to ' + str(signs[i] * dist) + 'cm from reference '
-                  'object.')
+                  'object (' + str(midpoints[mp_num]) + 'cm).')
             res = prompt_binary('Did the participant answer correctly?',
                                 'y', 'n')
             last_res = res
