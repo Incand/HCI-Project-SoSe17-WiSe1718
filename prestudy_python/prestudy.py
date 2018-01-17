@@ -69,7 +69,10 @@ def set_random_distance_function(distrib):
 
 
 def _get_random_dist_constant(last_distance, last_result):
-    return abs(round(random.normalvariate(0, 10)))
+    result = abs(round(random.normalvariate(0, 10)))
+    if result < 1:
+        result = 1
+    return result
 
 
 def _get_random_dist_converge(last_distance, last_result):
