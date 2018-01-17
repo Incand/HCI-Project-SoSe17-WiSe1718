@@ -10,6 +10,7 @@ description = 'Tool to create data folder structures and csv\'s for\
               the prestudy'
 signs = None
 midpoints = [55, 125, 195, 265]
+rands = [(a+1)*5 for a in range(6)] * 4
 filepath = ''
 
 
@@ -86,6 +87,8 @@ def _get_random_dist_converge(last_distance, last_result):
 def write_csv(p_num, mp_num, trials):
     global signs
     random.shuffle(signs)
+    global rands
+    random.shuffle(rands)
 
     sp_num, smp_num = str(p_num), str(mp_num)
     if not os.path.exists('./data'):
@@ -97,7 +100,7 @@ def write_csv(p_num, mp_num, trials):
         last_res = None
         for i in range(trials):
             print('Conducting trial no. ' + str(i+1) + '...')
-            dist = get_random_distance(last_dist, last_res)
+            dist = rands[i] # get_random_distance(last_dist, last_res)
             last_dist = dist
             print('Set distance to ' + str(signs[i] * dist) + 'cm from reference '
                   'object (' + str(midpoints[mp_num]) + 'cm).')
