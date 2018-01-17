@@ -10,7 +10,8 @@ description = 'Tool to create data folder structures and csv\'s for\
               the prestudy'
 signs = None
 midpoints = [55, 125, 195, 265]
-rands = [(a+1)*5 for a in range(6)] * 4
+rands_pos = [(a+1)*5 for a in range(6)] * 2
+rands = [-a for a in rands_pos] + rands_pos
 filepath = ''
 
 
@@ -102,7 +103,7 @@ def write_csv(p_num, mp_num, trials):
             print('Conducting trial no. ' + str(i+1) + '...')
             dist = rands[i] # get_random_distance(last_dist, last_res)
             last_dist = dist
-            print('Set distance to ' + str(signs[i] * dist) + 'cm from reference '
+            print('Set distance to ' + str(dist) + 'cm from reference '
                   'object (' + str(midpoints[mp_num]) + 'cm).')
             res = prompt_binary('Did the participant answer correctly?',
                                 'y', 'n')
