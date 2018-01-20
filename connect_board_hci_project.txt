@@ -1,0 +1,6 @@
+Debugging
+Kurzschluss checken
+Bluetoot rein/raus
+Board anschalten-> 5 sec warten auf Epilepsie LED
+Warten auf anzeige von Batterylevel in editor
+Toggle Sensors

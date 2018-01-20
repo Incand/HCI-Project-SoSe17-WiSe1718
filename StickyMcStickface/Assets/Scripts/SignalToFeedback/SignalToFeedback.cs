@@ -37,12 +37,19 @@ public class SignalToFeedback : MonoBehaviour {
     [Range(100.0f, 600.0f)]
     private float _maxSonicSignal = 200.0f;
 
+    [SerializeField]
+    private bool _useSonicAnimationCurve = false;
+
 	[SerializeField]
 	private AnimationCurve _sonicSignalToFrequency;
 
 	[SerializeField]
 	[Range(5.0f, 15.0f)]
 	private float _sonicMaxFrequency = 5.0f;
+
+    [SerializeField]
+	[Range(.0f,1.0f)]
+	private float _sonicMinFrequency = 1.0f;
 
 
     [Header("Infrared Signal Processing")]
@@ -53,6 +60,9 @@ public class SignalToFeedback : MonoBehaviour {
     [Range(100.0f, 600.0f)]
     [SerializeField]
     private float _maxSignal = 300.0f;
+
+    [SerializeField]
+    private bool _useInfraAnimationCurve = false;
 
 	[SerializeField]
 	private AnimationCurve _infraSignalToFrequency;
@@ -93,6 +103,15 @@ public class SignalToFeedback : MonoBehaviour {
         return result;
     }
 
+    private float GetRevExpFeedback(float x)
+    {
+       //parameter in exponent
+        float b = Mathf.Log(_sonicMinFrequency / _sonicMaxFrequency) / (_maxSonicSignal - _minSonicSignal);
+        //scalar 
+        float a = _sonicMaxFrequency / Mathf.Exp(-b * _minSonicSignal);
+        //return revexponential func
+        return a*Mathf.Exp(-b*x);
+    }
 
     void Update()
     {
@@ -109,7 +128,7 @@ public class SignalToFeedback : MonoBehaviour {
         { 
             _afterimages.Enqueue(new Afterimage(0));//angle
              //hapcon.triggerPiezo(true);
-            }
+        }
 
         float[] angles = { -90.0f, -45.0f, 0.0f, 45.0f, 90.0f };
         foreach(float a in angles)
@@ -152,7 +171,7 @@ public class SignalToFeedback : MonoBehaviour {
             return Mathf.Clamp(_sonicMaxFrequency * _sonicSignalToFrequency.Evaluate(cSNorm), 1.0f, _sonicMaxFrequency);
         }
     }
-        private float LaserMetaFrequency
+    private float LaserMetaFrequency
     {
         get
         {
