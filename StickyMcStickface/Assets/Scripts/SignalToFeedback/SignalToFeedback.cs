@@ -105,13 +105,8 @@ public class SignalToFeedback : MonoBehaviour {
 
     private float GetRevExpFeedback(float x)
     {
-       //parameter in exponent
-        float b = Mathf.Log(_sonicMinFrequency / _sonicMaxFrequency) / (_maxSonicSignal - _minSonicSignal);
-        //scalar 
-        float a = _sonicMaxFrequency / Mathf.Exp(-b * _minSonicSignal);
-        //return revexponential func
-        return a*Mathf.Exp(-b*x);
-    }
+        return _sonicMaxFrequency * Mathf.Pow(_sonicMinFrequency / _sonicMaxFrequency, (_minSonicSignal - x) / (_minSonicSignal - _maxSonicSignal));
+    } 
 
     void Update()
     {
@@ -167,8 +162,11 @@ public class SignalToFeedback : MonoBehaviour {
         get
         {
             float clampedSignal = Mathf.Clamp(hapcon.UltrasonicSensorDistance, _minSonicSignal, _maxSonicSignal);
+            return GetRevExpFeedback(clampedSignal);
+            /*
 			float cSNorm = (clampedSignal - _minSonicSignal) / (_maxSonicSignal - _minSonicSignal);
             return Mathf.Clamp(_sonicMaxFrequency * _sonicSignalToFrequency.Evaluate(cSNorm), 1.0f, _sonicMaxFrequency);
+            */
         }
     }
     private float LaserMetaFrequency
@@ -176,8 +174,11 @@ public class SignalToFeedback : MonoBehaviour {
         get
         {
             float clampedSignal = Mathf.Clamp(hapcon.LaserSensorDistance, _minSonicSignal, _maxSonicSignal);
+            return GetRevExpFeedback(clampedSignal);
+            /*
 			float cSNorm = (clampedSignal - _minSonicSignal) / (_maxSonicSignal - _minSonicSignal);
             return Mathf.Clamp(_sonicMaxFrequency * _sonicSignalToFrequency.Evaluate(cSNorm), 1.0f, _sonicMaxFrequency);
+            */
         }
     }
     #endregion
