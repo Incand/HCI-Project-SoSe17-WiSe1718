@@ -86,6 +86,7 @@ public class SignalToFeedback : MonoBehaviour {
     [SerializeField]
     private AnimationCurve _amplitudeFalloff = new AnimationCurve();
 
+    private float _lastTime = 0.0f;
 
 	void Start () {
         Afterimage.MAX_LIFETIME = _afterimagesLifetime;
@@ -110,6 +111,7 @@ public class SignalToFeedback : MonoBehaviour {
 
     void Update()
     {
+        /*
         foreach(Afterimage ai in _afterimages)
             ai.Update(Time.deltaTime);
 
@@ -132,6 +134,7 @@ public class SignalToFeedback : MonoBehaviour {
             // Signal an actuator
         }
        // hapcon.triggerPiezo(true, "255,18,7,9");
+       */
     }
 	
     
@@ -141,13 +144,14 @@ public class SignalToFeedback : MonoBehaviour {
         {
             float metaFreq = feedbackSensor == Sensor.SONIC ? SonicMetaFrequency : LaserMetaFrequency;
 			yield return new WaitForSeconds(1.0f / metaFreq);
-            hapcon.durationMS = 125;
+            hapcon.durationMS = 50;
             hapcon.amplitud = 255;
             hapcon.frequency = 255;
             hapcon.cycles = (byte)(hapcon.frequency * hapcon.durationMS / 1000);
 
             hapcon.triggerPiezo(true);
-            Debug.Log("Feedback!");
+            Debug.Log(Time.time - _lastTime);
+            _lastTime = Time.time;
         }
     }
     
