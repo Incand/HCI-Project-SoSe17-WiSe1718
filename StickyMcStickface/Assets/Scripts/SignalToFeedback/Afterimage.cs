@@ -8,16 +8,13 @@ public class Afterimage
     private float _lifeTime = 0.0f;
 
     private bool _done;
-    public bool Done
-    {
-        get { return _done; }
-    }
+    public bool Done { get { return _done; } }
 
     private float _angle;
         
     public Afterimage(float angle)
     {
-        _angle  = angle;
+        _angle = angle;
     }
 
     private float _getFalloff()

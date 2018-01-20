@@ -2,81 +2,29 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public struct MathUtil
-{
-    public static float SignedAngle(Vector3 from, Vector3 to)
-    {
-        Vector3 xzFrom = new Vector3(from.x, 0.0f, from.z);
-        Vector3 xzTo = new Vector3(to.x, 0.0f, to.z);
-        float angle = Vector3.Angle(xzFrom, xzTo);
-        if (Vector3.Cross(xzFrom, xzTo).y < 0)
-            return -angle;
-        return angle;
-    }
-}
-
 public enum Sensor
 {
     LASER,
     SONIC
 }
 
-public class SignalToFeedback : MonoBehaviour {
-    public HapStickController hapcon;
-    // Use this for initialization
+public class SignalToFeedback : MonoBehaviour
+{
+    [SerializeField]
+    private HapStickController _hapcon;
 
     [SerializeField]
     private Sensor feedbackSensor = Sensor.SONIC;
 
-    [Header("Sonic Signal Processing")]
+    [Header("Signal Processing")]
     [SerializeField]
-    [Range(10.0f, 100.0f)]
-    private float _minSonicSignal = 20.0f;
-
-    [SerializeField]
-    [Range(100.0f, 600.0f)]
-    private float _maxSonicSignal = 200.0f;
+    private SignalFeedbackConfiguration _sonicConfig = new SignalFeedbackConfiguration();
 
     [SerializeField]
-    private bool _useSonicAnimationCurve = false;
-
-	[SerializeField]
-	private AnimationCurve _sonicSignalToFrequency;
-
-	[SerializeField]
-	[Range(5.0f, 15.0f)]
-	private float _sonicMaxFrequency = 5.0f;
-
-    [SerializeField]
-	[Range(.0f,1.0f)]
-	private float _sonicMinFrequency = 1.0f;
-
-
-    [Header("Infrared Signal Processing")]
-    [Range(10.0f, 100.0f)]
-    [SerializeField]
-    private float _minSignal = 20.0f;
-
-    [Range(100.0f, 600.0f)]
-    [SerializeField]
-    private float _maxSignal = 300.0f;
-
-    [SerializeField]
-    private bool _useInfraAnimationCurve = false;
-
-	[SerializeField]
-	private AnimationCurve _infraSignalToFrequency;
-
-    [SerializeField]
-    private float mean = 0;
-
-    [Header("After Image Configuration")]
-
-    private float _timer = 0.0f;
-    private float _maxTime = 10.0f;
+    private SignalFeedbackConfiguration _infraConfig = new SignalFeedbackConfiguration();
     
-    private Queue<Afterimage> _afterimages = new Queue<Afterimage>();
-
+    
+    [Header("After Image Configuration")]
     [SerializeField]
     private float _angleGaussStdDev = 10.0f;
 
@@ -88,7 +36,19 @@ public class SignalToFeedback : MonoBehaviour {
 
     private float _lastTime = 0.0f;
 
+    private float _timer = 0.0f;
+    private float _maxTime = 10.0f;
+
+    private Queue<Afterimage> _afterimages = new Queue<Afterimage>();
+
+    [Header("Signal Smoothing")]
+    [SerializeField]
+    private uint _nLastDistances = 2;
+
+    private Queue<float> _lastDistances = new Queue<float>();
+
 	void Start () {
+        Afterimage.GAUSS_STD_DEV = _angleGaussStdDev;
         Afterimage.MAX_LIFETIME = _afterimagesLifetime;
         IEnumerator corout = _feedbackCoroutine();
         //StartCoroutine(corout);
@@ -106,7 +66,7 @@ public class SignalToFeedback : MonoBehaviour {
 
     private float GetRevExpFeedback(float x)
     {
-        return _sonicMaxFrequency * Mathf.Pow(_sonicMinFrequency / _sonicMaxFrequency, (_minSonicSignal - x) / (_minSonicSignal - _maxSonicSignal));
+        return _sonicConfig.MaxFrequency * Mathf.Pow(_sonicConfig.MinFrequency / _sonicConfig.MaxFrequency, (_sonicConfig.MinSignal - x) / (_sonicConfig.MinSignal - _sonicConfig.MaxSignal));
     } 
 
     void Update()
@@ -121,7 +81,7 @@ public class SignalToFeedback : MonoBehaviour {
         float angle = MathUtil.SignedAngle(Vector3.forward,
             hapcon.getIMUOrientation() * Vector3.forward);
 
-        if (hapcon.LaserSensorDistance < _maxSonicSignal)
+        if (hapcon.LaserSensorDistance < _sonicConfig.MaxSignal)
         { 
             _afterimages.Enqueue(new Afterimage(0));//angle
              //hapcon.triggerPiezo(true);
@@ -142,36 +102,37 @@ public class SignalToFeedback : MonoBehaviour {
     void FixedUpdate()
     {
         _feedbackTimer += Time.fixedDeltaTime;
-        float metaWavelength = 1 / (feedbackSensor == Sensor.SONIC ? SonicMetaFrequency : LaserMetaFrequency);
+        float metaPeriod = 1 / (feedbackSensor == Sensor.SONIC ? SonicMetaFrequency : LaserMetaFrequency);
 
-        if(_feedbackTimer >= metaWavelength)
+        if(_feedbackTimer >= metaPeriod)
         {
-            _feedbackTimer -= metaWavelength;
-            hapcon.durationMS = 50;
-            hapcon.amplitud = 255;
-            hapcon.frequency = 255;
-            hapcon.cycles = (byte)(hapcon.frequency * hapcon.durationMS / 1000);
+            _feedbackTimer -= metaPeriod;
+            _hapcon.durationMS = 50;
+            _hapcon.amplitud = 255;
+            _hapcon.frequency = 255;
+            _hapcon.cycles = (byte)(_hapcon.frequency * _hapcon.durationMS / 1000);
 
-            hapcon.triggerPiezo(true);
-            Debug.Log(Time.fixedTime - _lastTime + "\t distance: " + hapcon.UltrasonicSensorDistance);
+            _hapcon.triggerPiezo(true);
+            Debug.Log(Time.fixedTime - _lastTime + "\t distance: " + _hapcon.UltrasonicSensorDistance);
             _lastTime = Time.fixedTime;
         }
     }
 	
-    
+
+    //unused
     private IEnumerator _feedbackCoroutine()
     {
         while (true)
         {
             float metaFreq = feedbackSensor == Sensor.SONIC ? SonicMetaFrequency : LaserMetaFrequency;
 			yield return new WaitForSeconds(1.0f / metaFreq);
-            hapcon.durationMS = 50;
-            hapcon.amplitud = 255;
-            hapcon.frequency = 255;
-            hapcon.cycles = (byte)(hapcon.frequency * hapcon.durationMS / 1000);
+            _hapcon.durationMS = 50;
+            _hapcon.amplitud = 255;
+            _hapcon.frequency = 255;
+            _hapcon.cycles = (byte)(_hapcon.frequency * _hapcon.durationMS / 1000);
 
-            hapcon.triggerPiezo(true);
-            Debug.Log(Time.time - _lastTime + "\t distance: " + hapcon.UltrasonicSensorDistance);
+            _hapcon.triggerPiezo(true);
+            Debug.Log(Time.time - _lastTime + "\t distance: " + _hapcon.UltrasonicSensorDistance);
             _lastTime = Time.time;
         }
     }
@@ -182,28 +143,31 @@ public class SignalToFeedback : MonoBehaviour {
         return (laserDistance + sonicDistance) * 0.5f;
     }
 
+    private float SmoothSignal(float newSignal)
+    {
+        _lastDistances.Enqueue(newSignal);
+        while (_lastDistances.Count > _nLastDistances)
+            _lastDistances.Dequeue();
+        float sum = 0.0f;
+        foreach (float f in _lastDistances)
+            sum += f;
+        return sum / _lastDistances.Count;
+    }
+
     private float SonicMetaFrequency
     {
         get
         {
-            float clampedSignal = Mathf.Clamp(hapcon.UltrasonicSensorDistance, _minSonicSignal, _maxSonicSignal);
-            return GetRevExpFeedback(clampedSignal);
-            /*
-			float cSNorm = (clampedSignal - _minSonicSignal) / (_maxSonicSignal - _minSonicSignal);
-            return Mathf.Clamp(_sonicMaxFrequency * _sonicSignalToFrequency.Evaluate(cSNorm), 1.0f, _sonicMaxFrequency);
-            */
+            float clampedSignal = Mathf.Clamp(_hapcon.UltrasonicSensorDistance, _sonicConfig.MinSignal, _sonicConfig.MaxSignal);
+            return GetRevExpFeedback(SmoothSignal(clampedSignal));
         }
     }
     private float LaserMetaFrequency
     {
         get
         {
-            float clampedSignal = Mathf.Clamp(hapcon.LaserSensorDistance, _minSonicSignal, _maxSonicSignal);
+            float clampedSignal = Mathf.Clamp(_hapcon.LaserSensorDistance, _sonicConfig.MinSignal, _sonicConfig.MaxSignal);
             return GetRevExpFeedback(clampedSignal);
-            /*
-			float cSNorm = (clampedSignal - _minSonicSignal) / (_maxSonicSignal - _minSonicSignal);
-            return Mathf.Clamp(_sonicMaxFrequency * _sonicSignalToFrequency.Evaluate(cSNorm), 1.0f, _sonicMaxFrequency);
-            */
         }
     }
     #endregion
@@ -211,8 +175,10 @@ public class SignalToFeedback : MonoBehaviour {
     #region FEEDBACK_CALCULATION
     private byte calculateAmplitude(float signal)
     {
-        float clampedSignal = Mathf.Clamp(signal, _minSignal, _maxSignal);
-        float cSNorm = 1.0f - (clampedSignal - _minSignal) / (_maxSignal - _minSignal);
+        SignalFeedbackConfiguration config = feedbackSensor == Sensor.SONIC ? _sonicConfig : _infraConfig;
+
+        float clampedSignal = Mathf.Clamp(signal, config.MinSignal, config.MaxSignal);
+        float cSNorm = 1.0f - (clampedSignal - config.MinSignal) / (config.MaxSignal - config.MinSignal);
         return (byte)(255 * cSNorm);
     }
     #endregion
