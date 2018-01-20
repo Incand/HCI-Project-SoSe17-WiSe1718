@@ -91,7 +91,7 @@ public class SignalToFeedback : MonoBehaviour {
 	void Start () {
         Afterimage.MAX_LIFETIME = _afterimagesLifetime;
         IEnumerator corout = _feedbackCoroutine();
-        StartCoroutine(corout);
+        //StartCoroutine(corout);
 	}
 
     private float GetSummedGaussian(float angle)
@@ -135,6 +135,27 @@ public class SignalToFeedback : MonoBehaviour {
         }
        // hapcon.triggerPiezo(true, "255,18,7,9");
        */
+    }
+
+    float _feedbackTimer = 0.0f;
+
+    void FixedUpdate()
+    {
+        _feedbackTimer += Time.fixedDeltaTime;
+        float metaWavelength = 1 / (feedbackSensor == Sensor.SONIC ? SonicMetaFrequency : LaserMetaFrequency);
+
+        if(_feedbackTimer >= metaWavelength)
+        {
+            _feedbackTimer -= metaWavelength;
+            hapcon.durationMS = 50;
+            hapcon.amplitud = 255;
+            hapcon.frequency = 255;
+            hapcon.cycles = (byte)(hapcon.frequency * hapcon.durationMS / 1000);
+
+            hapcon.triggerPiezo(true);
+            Debug.Log(Time.fixedTime - _lastTime + "\t distance: " + hapcon.UltrasonicSensorDistance);
+            _lastTime = Time.fixedTime;
+        }
     }
 	
     
