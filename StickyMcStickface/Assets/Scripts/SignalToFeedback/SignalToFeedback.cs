@@ -150,7 +150,7 @@ public class SignalToFeedback : MonoBehaviour {
             hapcon.cycles = (byte)(hapcon.frequency * hapcon.durationMS / 1000);
 
             hapcon.triggerPiezo(true);
-            Debug.Log(Time.time - _lastTime);
+            Debug.Log(Time.time - _lastTime + "\t distance: " + hapcon.UltrasonicSensorDistance);
             _lastTime = Time.time;
         }
     }
