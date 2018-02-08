@@ -124,9 +124,19 @@ def plot_relerr_by_participants(data):
     _plot_relerr(_x, _y, "Participant ID", step_size)
 
 
+def get_weighted_distance_avg(data):
+    """Get the psychometric value for the distance difference of reference
+    points."""
+    weighted_sum = 0
+    for row in data:
+        weighted_sum += abs(row[2]) * int(not row[3])
+    return weighted_sum / len(data)
+
+
 def main():
     """Main function."""
     data = list(load_csv())
+    print(get_weighted_distance_avg(data))
     plot_relerr_by_distances(data)
     plot_relerr_by_refpoints(data)
     plot_relerr_by_participants(data)
