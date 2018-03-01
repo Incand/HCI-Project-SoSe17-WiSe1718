@@ -23,11 +23,11 @@ public class HapBandBLEGUI : Editor
 
         if (GUILayout.Button("Trigger Feedback"))
         {
-            hpbc.triggerPiezo(true);
+            hpbc.triggerPiezo(true,hpbc.piezoIndex);
         }
         if (GUILayout.Button("Stop Feedback"))
         {
-            hpbc.triggerPiezo(false);
+            hpbc.triggerPiezo(false,hpbc.piezoIndex);
         }
 
         GUILayout.Space(15);
@@ -39,7 +39,7 @@ public class HapBandBLEGUI : Editor
 
         if (GUILayout.Button("Toggle Sonic Sensor"))
         {
-            hpbc.toggleIRSensor();
+            hpbc.toggleUltraSonicSensor();
         }
 
         GUILayout.Space(15);

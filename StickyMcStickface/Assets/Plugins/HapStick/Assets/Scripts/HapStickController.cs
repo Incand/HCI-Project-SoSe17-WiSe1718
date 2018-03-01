@@ -22,8 +22,11 @@ public class HapStickController : MonoBehaviour
     [Space(5)]
     [Header("Bluetooth parameters")]
     public string deviceName = "HCI_HapStick";
-    public string donglePort = "COM11";
+    public string donglePort = "COM5";
     public bool debugPackets = false;
+
+    bool battery = false;
+
     public bool debugPPS = !false; // Packets per second
     public String BatteryLevel = ""; // Batteries stick around 3.7V then slowly sink down to 3.2V. TODO: Display a warning below 3.7V 
     //public
@@ -138,7 +141,10 @@ public class HapStickController : MonoBehaviour
     String BatteryLevelPacketID = BitConverter.ToString(Encoding.UTF8.GetBytes("BA")).Replace("-", "");
 
     //******************************************************
-
+    void Awake()
+    {
+        Application.targetFrameRate = 30;
+    }
     void Update()
     {   
         durationMS = 1000.0f * ((float)cycles / (float)frequency); // TODO: add the envelope time. Page 20 on http://www.ti.com/lit/ds/symlink/drv2667.pdf
@@ -147,14 +153,14 @@ public class HapStickController : MonoBehaviour
         {
             recenter();
         }
-        else if (Input.GetKeyDown(KeyCode.Q))
-        {
-            triggerPiezo(true);
-        }
-        else if (Input.GetKeyDown(KeyCode.W))
-        {
-            triggerPiezo(false);
-        }
+        //else if (Input.GetKeyDown(KeyCode.Q))
+        //{
+        //    triggerPiezo(true);
+        //}
+        //else if (Input.GetKeyDown(KeyCode.W))
+        //{
+        //    triggerPiezo(false);
+        //}
         else if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             triggerPiezo(true, "255,18,7,9");
@@ -175,10 +181,10 @@ public class HapStickController : MonoBehaviour
         {
             triggerPiezo(true, "255,40,2,3");
         }
-        else if (Input.GetKeyDown(KeyCode.Alpha0))
-        {
-            triggerPiezo(false);
-        }
+        //else if (Input.GetKeyDown(KeyCode.Alpha0))
+        //{
+        //    triggerPiezo(false);
+        //}
 
         //***************************************************************
 
@@ -362,6 +368,7 @@ public class HapStickController : MonoBehaviour
             else if (BatteryLevelPacketID.Equals(EncodedID))
             {
                 BatteryLevel = "" + (char)packet[4] + "." + (char)packet[5] + " Volts";
+               
             }
             else
             {
@@ -478,7 +485,7 @@ public class HapStickController : MonoBehaviour
         SendPacket("DSLT");
     }
 
-    public void toggleIRSensor()
+    public void toggleUltraSonicSensor()
     {
         SendPacket("DSIT");
     }
@@ -488,9 +495,9 @@ public class HapStickController : MonoBehaviour
         SendPacket("AP" + (enabled ? ("E" + piezoIndex + "," + piezoValues) : ("D" + piezoIndex)));
     }
 
-    public void triggerPiezo(bool enabled)
+    public void triggerPiezo(bool enabled,int index)
     {
-        SendPacket("AP" + (enabled ? ("E" + piezoIndex + "," + amplitud + "," + (byte)(frequency / DRV2667_MIN_FREQ_BASE) + "," + cycles + "," + envelope) : ("D" + piezoIndex)));
+        SendPacket("AP" + (enabled ? ("E" + index.ToString() + "," + amplitud + "," + (byte)(frequency / DRV2667_MIN_FREQ_BASE) + "," + cycles + "," + envelope) : ("D" + piezoIndex)));
     }
     
     ///Debug.Log(string.Format(sw.ElapsedMilliseconds + "Fingertip feedback >>> {0}", enabled));
