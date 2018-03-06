@@ -11,10 +11,21 @@ public class Afterimage
     public bool Done { get { return _done; } }
 
     private float _angle;
+    public float Angle
+    {
+        get { return _angle; }
+    }
+
+    private float _metaFrequency;
+    public float MetaFrequency
+    {
+        get { return _metaFrequency; }
+    }
         
-    public Afterimage(float angle)
+    public Afterimage(float angle, float metaFrequency)
     {
         _angle = angle;
+        _metaFrequency = metaFrequency;
     }
 
     private float _getFalloff()
@@ -29,9 +40,10 @@ public class Afterimage
             _done = true;
     }
 
+    // CAUTION: Potential error (_angle - x)
     public float GaussLike(float x)
     {
-        float exp = 1.0f / GAUSS_STD_DEV * (x - _angle);
+        float exp = 1.0f / GAUSS_STD_DEV * (_angle - x);
         return _getFalloff() * Mathf.Exp(-0.5f * (exp * exp));
     }
 }

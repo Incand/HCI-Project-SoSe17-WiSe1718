@@ -3,27 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public enum Sensor
-{
-    LASER,
-    SONIC
-}
-
 public class SignalToFeedback : MonoBehaviour
 {
     [SerializeField]
-    private HapStickController _hapcon;
-
-    [SerializeField]
-    private Sensor feedbackSensor = Sensor.SONIC;
-
-    [Header("Signal Processing")]
-    [SerializeField]
-    private SignalFeedbackConfiguration _sonicConfig = new SignalFeedbackConfiguration();
-
-    [SerializeField]
-    private SignalFeedbackConfiguration _infraConfig = new SignalFeedbackConfiguration();
+    private Transform _rotaryObj;
     
+    private HapStickController _hapCon;
+
+    [SerializeField]
+    private SensorFeedbackHandler _laserHandler, _sonicHandler;
+
+    [SerializeField]
+    private AfterimageFeedbackHandler _afterimageHandler;
     
     [Header("After Image Configuration")]
     [SerializeField]
@@ -33,119 +24,119 @@ public class SignalToFeedback : MonoBehaviour
     private float _afterimagesLifetime = 0.5f;
 
     [SerializeField]
-    private AnimationCurve _amplitudeFalloff = new AnimationCurve();
-
-    private float _lastTime = 0.0f;
-    private int count =0;
-    private float _timer = 0.0f;
-    private float _maxTime = 10.0f;
-
-    private Queue<Afterimage> _afterimages = new Queue<Afterimage>();
-
-    [Header("Signal Smoothing")]
+    private bool _afterimagesFromSonic = true;
     [SerializeField]
-    private uint _nLastDistances = 2;
+    private bool _afterimagesFromLaser = false;
 
-    private Queue<float> _lastDistances = new Queue<float>();
+    void Start() {
+        _hapCon = GetComponent<HapStickController>();
 
-	void Start () {
         Afterimage.GAUSS_STD_DEV = _angleGaussStdDev;
         Afterimage.MAX_LIFETIME = _afterimagesLifetime;
-        IEnumerator corout = _feedbackCoroutine();
-        //StartCoroutine(corout);
-	}
 
+        _hapCon.durationMS = 50;
+        _hapCon.amplitud = 255;
+        _hapCon.frequency = 255;
+        _hapCon.cycles = (byte)(_hapCon.frequency * _hapCon.durationMS / 1000);
+        
+        _laserHandler = new LaserSensorFeedbackHandler(_hapCon);
+        _sonicHandler = new SonicSensorFeedbackHandler(_hapCon);
+        _afterimageHandler = new AfterimageFeedbackHandler(_hapCon, _afterimagesFromSonic, _afterimagesFromLaser);
+    }
+    /*
     private float GetSummedGaussian(float angle)
     {
         float result = 0.0f;
-        foreach(Afterimage ai in _afterimages)
-        {
+        foreach (Afterimage ai in _afterimages)
             result += ai.GaussLike(angle);
-        }
         return result;
     }
-
-    private float GetRevExpFeedback(float x)
+    
+    private void _handleAfterImages(float angle)
     {
-        return _sonicConfig.MaxFrequency * Mathf.Pow(_sonicConfig.MinFrequency / _sonicConfig.MaxFrequency, (_sonicConfig.MinSignal - x) / (_sonicConfig.MinSignal - _sonicConfig.MaxSignal));
-    } 
+        // Update all afterimages
+        foreach (Afterimage ai in _afterimages)
+                ai.Update(Time.deltaTime);
 
-  
+        // Remove finished afterimages
+        if (_afterimages.Count > 0 && _afterimages.Peek().Done)
+            _afterimages.Dequeue();
+        
+        // Add afterimages each frame
+        //use a threshold for not spammin actuators with senseless feedback
+        if (_hapCon.UltrasonicSensorDistance < _sonicConfig.MaxSignal)
+        { 
+            _afterimages.Enqueue(new Afterimage(angle));//angle
+            count++;
+            if (count == 20)
+            {
+                Debug.Log("angle: " + angle);
+                count = 0;
+            }
+        }
+    }
 
-    float _feedbackTimer = 0.0f;
-
-    void Update()
+    private void _handlePiezoTriggering(float angle)
     {
-        _feedbackTimer += Time.fixedDeltaTime;
-        float metaPeriod = 1 / (feedbackSensor == Sensor.SONIC ? SonicMetaFrequency : LaserMetaFrequency);
+        
+        foreach(float a in _piezoAngles)
+        {
+            float value = GetSummedGaussian(angle + a);
+            if (value < 0.1f)
+                continue;
+            // determine piezo value according to position on gaussian curve circle
+            // Debug.Log("Gauss value: " +a +" -> "+ value);
+            // calculates the gaussian value for a certain peizo 0.0 is the front one whereas#
+            // the other ones have index 1,2 (west) or 4,5 (east) are looking at
+            // Signal an actuator when value bigger than threshold 
+            if(count == 0)
+                Debug.Log("value " + Array.IndexOf(_piezoAngles, a) + ": angle: " + a + ": " + value);
+            _hapCon.triggerPiezo(true, Array.IndexOf(_piezoAngles, a) + 1);
+        }
+    }
+    
+
+    void doIt(Sensor sensorType)
+    {
+        _feedbackTimer += Time.deltaTime;
+        
+        float metaPeriod = 1 / (sensorType == Sensor.SONIC ? SonicMetaFrequency : LaserMetaFrequency);
 
         if(_feedbackTimer >= metaPeriod)
         {
             _feedbackTimer -= metaPeriod;
-            _hapcon.durationMS = 50;
-            _hapcon.amplitud = 255;
-            _hapcon.frequency = 255;
-            _hapcon.cycles = (byte)(_hapcon.frequency * _hapcon.durationMS / 1000);
 
-            foreach (Afterimage ai in _afterimages)
-                ai.Update(Time.deltaTime);
+            // now calculate the hapstick position and determine the piezo index.
+            // For orientation reasons, the local axis pointing along the stick is "down"
+            float angle = MathUtil.SignedAngle(
+                Vector3.forward,
+                Vector3.ProjectOnPlane(-_rotaryObj.up, Vector3.up)
+            );
 
-            if (_afterimages.Count>0 && _afterimages.Peek().Done)
-                _afterimages.Dequeue();
-            //now calculate the hapstick position and determine the piezo index.
-            float angle = MathUtil.SignedAngle(Vector3.forward,
-            _hapcon.getIMUOrientation() * Vector3.forward);
-            //use a threshold for not spammin actuators with senseless feedback
-            if (_hapcon.UltrasonicSensorDistance < _sonicConfig.MaxSignal)
-            { 
-                _afterimages.Enqueue(new Afterimage(angle));//angle
-                count++;
-                if (count == 20)
-                {
-                    Debug.Log("angle: "+angle );
-                    count = 0;
-                }
-                
-            }
-            //for it's just wasting battery
-            float[] angles = new float[]{ -90.0f, -45.0f, 0.0f, 45.0f, 90.0f };
-            foreach(float a in angles)
-            {
-                float value = GetSummedGaussian(angle + a);
-                //determine piezo value according to position on gaussian curve circle
-                //Debug.Log("Gauss value: " +a +" -> "+ value);
-                //calculates the gaussian value for a certain peizo 0.0 is the front one whereas#
-                //the other ones have index 1,2 (west) or 4,5 (east) are looking at
-                // Signal an actuator when value bigger than threshold 
-                if(count ==0)
-                    Debug.Log("value "+Array.IndexOf(angles,a)+": angle: "+a+": "+value);
-                _hapcon.triggerPiezo(true, Array.IndexOf(angles,a)+1);
-            
-            }
-            //Debug.Log(Time.fixedTime - _lastTime + "\t distance: " + _hapcon.UltrasonicSensorDistance);
-            _lastTime = Time.fixedTime;
+            _handleAfterImages(angle);
+            _handlePiezoTriggering(angle);
         }
     }
-	
+    */
 
-    //unused
-    private IEnumerator _feedbackCoroutine()
+    void Update()
     {
-        while (true)
-        {
-            float metaFreq = feedbackSensor == Sensor.SONIC ? SonicMetaFrequency : LaserMetaFrequency;
-			yield return new WaitForSeconds(1.0f / metaFreq);
-            _hapcon.durationMS = 50;
-            _hapcon.amplitud = 255;
-            _hapcon.frequency = 255;
-            _hapcon.cycles = (byte)(_hapcon.frequency * _hapcon.durationMS / 1000);
+        _laserHandler.Update();
+        _sonicHandler.Update();
+        
+        float angle = MathUtil.SignedAngle(
+                Vector3.forward,
+                Vector3.ProjectOnPlane(-_rotaryObj.up, Vector3.up)
+            );
 
-            _hapcon.triggerPiezo(true,3);
-            //Debug.Log(Time.time - _lastTime + "\t distance: " + _hapcon.UltrasonicSensorDistance);
-            _lastTime = Time.time;
-        }
+        if (_afterimagesFromSonic)
+            _afterimageHandler.AddAfterImage(angle, _sonicHandler.MetaFrequency);
+        if (_afterimagesFromLaser)
+            _afterimageHandler.AddAfterImage(angle, _laserHandler.MetaFrequency);
+
+        _afterimageHandler.Update();
     }
-    
+	/*
     #region SIGNAL_PROCESSING
     private float CombineMean(float laserDistance, float sonicDistance)
     {
@@ -162,24 +153,6 @@ public class SignalToFeedback : MonoBehaviour
             sum += f;
         return sum / _lastDistances.Count;
     }
-
-    private float SonicMetaFrequency
-    {
-        get
-        {
-            float clampedSignal = Mathf.Clamp(_hapcon.UltrasonicSensorDistance, _sonicConfig.MinSignal, _sonicConfig.MaxSignal);
-            return GetRevExpFeedback(SmoothSignal(clampedSignal));
-        }
-    }
-    private float LaserMetaFrequency
-    {
-        get
-        {
-            Debug.Log(_hapcon);
-            float clampedSignal = Mathf.Clamp(_hapcon.LaserSensorDistance, _sonicConfig.MinSignal, _sonicConfig.MaxSignal);
-            return GetRevExpFeedback(clampedSignal);
-        }
-    }
     #endregion
 
     #region FEEDBACK_CALCULATION
@@ -192,4 +165,5 @@ public class SignalToFeedback : MonoBehaviour
         return (byte)(255 * cSNorm);
     }
     #endregion
+    */
 }

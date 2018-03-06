@@ -19,8 +19,8 @@ public class SignalGeneration : MonoBehaviour {
 	}
 
         private class NewSignalEvent : UnityEvent<float>{}
-	[SerializeField]
-	private NewSignalEvent _onNewSignalValue = new NewSignalEvent();
+	//[SerializeField]
+	//private NewSignalEvent _onNewSignalValue = new NewSignalEvent();
 
 	void FixedUpdate() {
 		float lastTime = 0.0f;

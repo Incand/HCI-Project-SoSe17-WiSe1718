@@ -2,7 +2,7 @@
 using UnityEngine;
 
 [Serializable]
-public class SignalFeedbackConfiguration
+public class FeedbackCalculator
 {
     [SerializeField]
     [Range(0.0f, 100.0f)]
@@ -23,4 +23,18 @@ public class SignalFeedbackConfiguration
     [Range(6.0f, 20.0f)]
     private float _maxFrequency = 10.0f;
     public float MaxFrequency { get { return _maxFrequency; } }
+
+    /* 
+     * Crazy impulse-meta-frequency exponential-falloff-function 
+     */
+    private float _getRevExpFeedback(float x)
+    {
+        return MaxFrequency * Mathf.Pow(MinFrequency / MaxFrequency, (MinSignal - x) / (MinSignal - MaxSignal));
+    }
+
+    public float GetMetaFrequency(short sensorDistance)
+    {
+        float clampedSignal = Mathf.Clamp(sensorDistance, MinSignal, MaxSignal);
+        return _getRevExpFeedback(clampedSignal);
+    }
 }
