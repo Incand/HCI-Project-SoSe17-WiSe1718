@@ -88,17 +88,17 @@ public class SignalToFeedback : MonoBehaviour
             _hapcon.cycles = (byte)(_hapcon.frequency * _hapcon.durationMS / 1000);
 
             foreach (Afterimage ai in _afterimages)
-            ai.Update(Time.deltaTime);
+                ai.Update(Time.deltaTime);
 
             if (_afterimages.Count>0 && _afterimages.Peek().Done)
-            _afterimages.Dequeue();
+                _afterimages.Dequeue();
             //now calculate the hapstick position and determine the piezo index.
             float angle = MathUtil.SignedAngle(Vector3.forward,
             _hapcon.getIMUOrientation() * Vector3.forward);
             //use a threshold for not spammin actuators with senseless feedback
-             if (_hapcon.LaserSensorDistance < _sonicConfig.MaxSignal)
-        { 
-            _afterimages.Enqueue(new Afterimage(angle));//angle
+            if (_hapcon.UltrasonicSensorDistance < _sonicConfig.MaxSignal)
+            { 
+                _afterimages.Enqueue(new Afterimage(angle));//angle
                 count++;
                 if (count == 20)
                 {
@@ -106,22 +106,22 @@ public class SignalToFeedback : MonoBehaviour
                     count = 0;
                 }
                 
-        }
+            }
             //for it's just wasting battery
             float[] angles = new float[]{ -90.0f, -45.0f, 0.0f, 45.0f, 90.0f };
-        foreach(float a in angles)
-        {
-            float value = GetSummedGaussian(angle + a);
+            foreach(float a in angles)
+            {
+                float value = GetSummedGaussian(angle + a);
                 //determine piezo value according to position on gaussian curve circle
                 //Debug.Log("Gauss value: " +a +" -> "+ value);
                 //calculates the gaussian value for a certain peizo 0.0 is the front one whereas#
                 //the other ones have index 1,2 (west) or 4,5 (east) are looking at
                 // Signal an actuator when value bigger than threshold 
                 if(count ==0)
-                  Debug.Log("value "+Array.IndexOf(angles,a)+": angle: "+a+": "+value);
+                    Debug.Log("value "+Array.IndexOf(angles,a)+": angle: "+a+": "+value);
                 _hapcon.triggerPiezo(true, Array.IndexOf(angles,a)+1);
             
-        }
+            }
             //Debug.Log(Time.fixedTime - _lastTime + "\t distance: " + _hapcon.UltrasonicSensorDistance);
             _lastTime = Time.fixedTime;
         }
