@@ -98,7 +98,7 @@ public class AfterimageFeedbackHandler
     {
         _afterimages.Enqueue(new Afterimage(angle, metaFrequency));
     }
-
+    
     private Afterimage _getClosestAfterimage()
     {
         IEnumerator<Afterimage> en = _afterimages.GetEnumerator();
@@ -126,15 +126,14 @@ public class AfterimageFeedbackHandler
         foreach(KeyValuePair<byte, float> pair in _piezoIndexAngleMap)
         {
             byte amplitud = (byte)(255 * closestAfterimage.GaussLike(stickAngle));
-            _hapCon.triggerPiezo(true, )
+            //_hapCon.triggerPiezo(true, )
         }
 
-        foreach (byte index in _piezoIndexMap)
+        foreach (KeyValuePair<byte, float> pair in _piezoIndexAngleMap)
         {
-            _hapCon.amplitud = 
-            _hapCon.triggerPiezo(true, index);
+            //_hapCon.amplitud = 
+            _hapCon.triggerPiezo(true, pair.Key);
         }
-            break;
 
         /*
         float metaPeriod = 1.0f / _getMetaFrequency();

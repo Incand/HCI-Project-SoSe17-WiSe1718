@@ -134,7 +134,8 @@ public class SignalToFeedback : MonoBehaviour
         if (_afterimagesFromLaser)
             _afterimageHandler.AddAfterImage(angle, _laserHandler.MetaFrequency);
 
-        _afterimageHandler.Update();
+        // TODO: add stick angle
+        _afterimageHandler.Update(0.0f);
     }
 	/*
     #region SIGNAL_PROCESSING
