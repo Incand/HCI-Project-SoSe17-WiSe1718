@@ -19,7 +19,6 @@ public class SerializableDictionary<K, V>
     {
         if (keys.Count != values.Count)
             throw new ArgumentException();
-
         _keys = keys;
         _values = values;
 

@@ -9,6 +9,18 @@ public class SignalToFeedback : MonoBehaviour
     private Transform _rotaryObj;
     
     private HapStickController _hapCon;
+    
+    [SerializeField]
+    private byte _laserIndex;
+
+    [SerializeField]
+    private byte _sonicIndex;
+
+    [SerializeField]
+    private List<byte> _piezoAfterimageIndices = new List<byte>();
+
+    [SerializeField]
+    private List<float> _piezoAfterimageAngles = new List<float>();
 
     [SerializeField]
     private SensorFeedbackHandler _laserHandler, _sonicHandler;
@@ -39,9 +51,9 @@ public class SignalToFeedback : MonoBehaviour
         _hapCon.frequency = 255;
         _hapCon.cycles = (byte)(_hapCon.frequency * _hapCon.durationMS / 1000);
         
-        _laserHandler = new LaserSensorFeedbackHandler(_hapCon);
-        _sonicHandler = new SonicSensorFeedbackHandler(_hapCon);
-        _afterimageHandler = new AfterimageFeedbackHandler(_hapCon, _afterimagesFromSonic, _afterimagesFromLaser);
+        _laserHandler = new LaserSensorFeedbackHandler(_hapCon,_laserIndex);
+        _sonicHandler = new SonicSensorFeedbackHandler(_hapCon,_sonicIndex);
+        _afterimageHandler = new AfterimageFeedbackHandler(_hapCon, _afterimagesFromSonic, _afterimagesFromLaser, _piezoAfterimageIndices, _piezoAfterimageAngles);
     }
     /*
     private float GetSummedGaussian(float angle)
@@ -124,7 +136,7 @@ public class SignalToFeedback : MonoBehaviour
         _laserHandler.Update();
         _sonicHandler.Update();
         
-        float angle = MathUtil.SignedAngle(
+        /*float angle = MathUtil.SignedAngle(
                 Vector3.forward,
                 Vector3.ProjectOnPlane(-_rotaryObj.up, Vector3.up)
             );
@@ -135,7 +147,8 @@ public class SignalToFeedback : MonoBehaviour
             _afterimageHandler.AddAfterImage(angle, _laserHandler.MetaFrequency);
 
         // TODO: add stick angle
-        _afterimageHandler.Update(0.0f);
+        _afterimageHandler.Update(angle);
+        */
     }
 	/*
     #region SIGNAL_PROCESSING

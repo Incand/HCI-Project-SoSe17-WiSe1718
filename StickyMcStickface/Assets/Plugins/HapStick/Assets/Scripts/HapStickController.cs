@@ -407,7 +407,7 @@ public class HapStickController : MonoBehaviour
     //******************************************************
 
     int tryCounter = 0;
-    const int MAX_TRY_NUM = 3;
+    const int MAX_TRY_NUM = 10;
 
     private int SendPacket(string message)
     {
@@ -418,10 +418,11 @@ public class HapStickController : MonoBehaviour
         int result = SendPacket(ptr, (byte)packet.Length);
         Marshal.FreeHGlobal(ptr);
         
-        if (result != 0 && tryCounter<MAX_TRY_NUM)
+        if (result != 0 && tryCounter < MAX_TRY_NUM)
         {
             ///Debug.Log("!!");
             tryCounter++;
+            Debug.Log("Response error code: " + result);
             return SendPacket(message);
         }
 
@@ -497,14 +498,34 @@ public class HapStickController : MonoBehaviour
 
     public void triggerPiezo(bool enabled,int index)
     {
-        SendPacket("AP" + (enabled ? ("E" + index.ToString() + "," + amplitud + "," + (byte)(frequency / DRV2667_MIN_FREQ_BASE) + "," + cycles + "," + envelope) : ("D" + piezoIndex)));
+        SendPacket("AP" + (enabled ? ("E" + index.ToString() + "," + amplitud + "," + (byte)(frequency / DRV2667_MIN_FREQ_BASE) + "," + cycles + "," + envelope) : ("D" + index.ToString())));
+        Debug.Log(index);
     }
 
     public void triggerPiezo(bool enabled, int index, byte amplitud)
     {
         byte cycles = (byte)(frequency * durationMS / 1000);
-        SendPacket("AP" + (enabled ? ("E" + index.ToString() + "," + amplitud + "," + (byte)(frequency / DRV2667_MIN_FREQ_BASE) + "," + cycles + "," + envelope) : ("D" + piezoIndex)));
+        SendPacket("AP" + (enabled ? ("E" + index.ToString() + "," + amplitud + "," + (byte)(frequency / DRV2667_MIN_FREQ_BASE) + "," + cycles + "," + envelope) : ("D" + index.ToString())));
+    }
+
+    public void triggerPiezo(string command)
+    {
+        SendPacket(command);
+    }
+
+    public string buildCommand(int index, byte amplitud)
+    {
+        return "APE" + index.ToString() + "," + amplitud + "," + (byte)(frequency / DRV2667_MIN_FREQ_BASE) + "," + cycles + "," + envelope;
+    }
+
+    public string buildCommand(int index)
+    {
+        return buildCommand(index, amplitud);
     }
     
     ///Debug.Log(string.Format(sw.ElapsedMilliseconds + "Fingertip feedback >>> {0}", enabled));
+    ///
+    
 }
+
+

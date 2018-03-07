@@ -8,24 +8,24 @@ public class SensorFeedbackHandler {
 
     protected HapStickController _hapCon;
 
+    protected TriggerBuffer _triggerBuffer;
+
     protected float _feedbackTimer = 0.0f;
     protected float _timer = 0.0f;
-    
+
     [SerializeField]
-    protected byte _piezoIndex = 0;
+    protected byte _piezoIndex;
 
     protected FeedbackCalculator _feedbackCalculator = new FeedbackCalculator();
 
-    public SensorFeedbackHandler(HapStickController hapCon)
+    public SensorFeedbackHandler(HapStickController hapCon, byte index)
     {
+        _piezoIndex = index;
         _hapCon = hapCon;
-    }
 
-    protected void _handlePiezoTrigger()
-    {
-        _hapCon.triggerPiezo(true, _piezoIndex);
+        _triggerBuffer = _hapCon.GetComponent<TriggerBuffer>();
     }
-
+    
     public virtual float MetaFrequency
     {
         get { return 0.0f; }
@@ -39,15 +39,15 @@ public class SensorFeedbackHandler {
         if(_feedbackTimer >= metaPeriod)
         {
             _feedbackTimer -= metaPeriod;
-            _handlePiezoTrigger();
+            _triggerBuffer.AddCommand(_piezoIndex);
         }
     }
 }
 
 public class LaserSensorFeedbackHandler : SensorFeedbackHandler
 {
-    public LaserSensorFeedbackHandler(HapStickController hapCon)
-        : base(hapCon)
+    public LaserSensorFeedbackHandler(HapStickController hapCon, byte index)
+        : base(hapCon, index)
     { }
 
     public override float MetaFrequency
@@ -58,8 +58,8 @@ public class LaserSensorFeedbackHandler : SensorFeedbackHandler
 
 public class SonicSensorFeedbackHandler : SensorFeedbackHandler
 {
-    public SonicSensorFeedbackHandler(HapStickController hapCon)
-        : base(hapCon)
+    public SonicSensorFeedbackHandler(HapStickController hapCon, byte index)
+        : base(hapCon, index)
     { }
 
     public override float MetaFrequency
@@ -79,6 +79,8 @@ public enum SensorType{
 public class AfterimageFeedbackHandler
 {
     private HapStickController _hapCon;
+
+    private TriggerBuffer _triggerBuffer;
     
     protected float _feedbackTimer = 0.0f;
     protected float _timer = 0.0f;
@@ -86,19 +88,22 @@ public class AfterimageFeedbackHandler
     [SerializeField]
     private byte _maxAmplitude = 255;
     
-    [SerializeField]
-    private List<byte> _piezoIndices = new List<byte>();
-    [SerializeField]
-    private List<float> _piezoAngles = new List<float>();
+    private List<byte> _piezoIndices;
+
+    private List<float> _piezoAngles;
 
     private Dictionary<byte, float> _piezoIndexAngleDict;
 
     private Queue<Afterimage> _afterimages = new Queue<Afterimage>();
 
-    public AfterimageFeedbackHandler(HapStickController hapCon, bool afterimagesFromSonic=true, bool afterimagesFromLaser=false)
+    public AfterimageFeedbackHandler(HapStickController hapCon, bool afterimagesFromSonic, bool afterimagesFromLaser, List<byte> piezoIndices, List<float> piezoAngles)
     {
         _hapCon = hapCon;
+        _piezoIndices = piezoIndices;
+        _piezoAngles = piezoAngles;
         _piezoIndexAngleDict = new SerializableDictionary<byte, float>(_piezoIndices, _piezoAngles).Dict;
+
+        _triggerBuffer = _hapCon.GetComponent<TriggerBuffer>();
     }
 
     public void AddAfterImage(float angle, float metaFrequency)
@@ -123,6 +128,7 @@ public class AfterimageFeedbackHandler
 
         if (_afterimages.Peek().Done)
             _afterimages.Dequeue();
+        //Debug.Log(_afterimages.Count);
 
         foreach (Afterimage afterimage in _afterimages)
             afterimage.Update(Time.deltaTime);
@@ -136,7 +142,7 @@ public class AfterimageFeedbackHandler
             foreach(KeyValuePair<byte, float> pair in _piezoIndexAngleDict)
             {
                 byte amplitude = (byte)(255 * closestAfterimage.GaussLike(stickAngle + pair.Value));
-                _hapCon.triggerPiezo(true, pair.Key, amplitude);
+                _triggerBuffer.AddCommand(pair.Key, amplitude);
             }
         }
     }
