@@ -73,6 +73,8 @@ public enum SensorType{
     SONIC
 }
 
+
+
 [Serializable]
 public class AfterimageFeedbackHandler
 {
@@ -85,28 +87,32 @@ public class AfterimageFeedbackHandler
     private byte _maxAmplitude = 255;
     
     [SerializeField]
-    private Dictionary<byte, float> _piezoIndexAngleMap = new Dictionary<byte, float>();
+    private List<byte> _piezoIndices = new List<byte>();
+    [SerializeField]
+    private List<float> _piezoAngles = new List<float>();
+
+    private Dictionary<byte, float> _piezoIndexAngleDict;
 
     private Queue<Afterimage> _afterimages = new Queue<Afterimage>();
 
     public AfterimageFeedbackHandler(HapStickController hapCon, bool afterimagesFromSonic=true, bool afterimagesFromLaser=false)
     {
         _hapCon = hapCon;
+        _piezoIndexAngleDict = new SerializableDictionary<byte, float>(_piezoIndices, _piezoAngles).Dict;
     }
 
     public void AddAfterImage(float angle, float metaFrequency)
     {
         _afterimages.Enqueue(new Afterimage(angle, metaFrequency));
     }
-    
+
     private Afterimage _getClosestAfterimage()
     {
-        IEnumerator<Afterimage> en = _afterimages.GetEnumerator();
-        Afterimage result = en.Current;
-        while (en.MoveNext())
+        Afterimage result = _afterimages.Peek();
+        foreach(Afterimage ai in _afterimages)
         {
-            if (en.Current.MetaFrequency > result.MetaFrequency)
-                result = en.Current;
+            if (ai.MetaFrequency > result.MetaFrequency)
+                result = ai;
         }
         return result;
     }
@@ -123,26 +129,15 @@ public class AfterimageFeedbackHandler
 
         Afterimage closestAfterimage = _getClosestAfterimage();
 
-        foreach(KeyValuePair<byte, float> pair in _piezoIndexAngleMap)
-        {
-            byte amplitud = (byte)(255 * closestAfterimage.GaussLike(stickAngle));
-            //_hapCon.triggerPiezo(true, )
-        }
-
-        foreach (KeyValuePair<byte, float> pair in _piezoIndexAngleMap)
-        {
-            //_hapCon.amplitud = 
-            _hapCon.triggerPiezo(true, pair.Key);
-        }
-
-        /*
-        float metaPeriod = 1.0f / _getMetaFrequency();
-
+        float metaPeriod = 1.0f / closestAfterimage.MetaFrequency;
         if(_feedbackTimer >= metaPeriod)
         {
             _feedbackTimer -= metaPeriod;
-            _handlePiezoTrigger();
+            foreach(KeyValuePair<byte, float> pair in _piezoIndexAngleDict)
+            {
+                byte amplitude = (byte)(255 * closestAfterimage.GaussLike(stickAngle + pair.Value));
+                _hapCon.triggerPiezo(true, pair.Key, amplitude);
+            }
         }
-        */
     }
 }

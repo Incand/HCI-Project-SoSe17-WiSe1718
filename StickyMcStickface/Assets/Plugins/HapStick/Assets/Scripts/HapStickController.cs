@@ -499,6 +499,12 @@ public class HapStickController : MonoBehaviour
     {
         SendPacket("AP" + (enabled ? ("E" + index.ToString() + "," + amplitud + "," + (byte)(frequency / DRV2667_MIN_FREQ_BASE) + "," + cycles + "," + envelope) : ("D" + piezoIndex)));
     }
+
+    public void triggerPiezo(bool enabled, int index, byte amplitud)
+    {
+        byte cycles = (byte)(frequency * durationMS / 1000);
+        SendPacket("AP" + (enabled ? ("E" + index.ToString() + "," + amplitud + "," + (byte)(frequency / DRV2667_MIN_FREQ_BASE) + "," + cycles + "," + envelope) : ("D" + piezoIndex)));
+    }
     
     ///Debug.Log(string.Format(sw.ElapsedMilliseconds + "Fingertip feedback >>> {0}", enabled));
 }
