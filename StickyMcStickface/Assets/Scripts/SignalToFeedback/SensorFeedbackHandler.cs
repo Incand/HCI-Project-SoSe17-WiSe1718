@@ -96,7 +96,7 @@ public class AfterimageFeedbackHandler
 
     private Queue<Afterimage> _afterimages = new Queue<Afterimage>();
 
-    public AfterimageFeedbackHandler(HapStickController hapCon, bool afterimagesFromSonic, bool afterimagesFromLaser, List<byte> piezoIndices, List<float> piezoAngles)
+    public AfterimageFeedbackHandler(HapStickController hapCon, List<byte> piezoIndices, List<float> piezoAngles)
     {
         _hapCon = hapCon;
         _piezoIndices = piezoIndices;
