@@ -19,11 +19,11 @@ public class SignalGeneration : MonoBehaviour {
 	}
 
         private class NewSignalEvent : UnityEvent<float>{}
-	[SerializeField]
-	private NewSignalEvent _onNewSignalValue = new NewSignalEvent();
+	//[SerializeField]
+	//private NewSignalEvent _onNewSignalValue = new NewSignalEvent();
 
 	void FixedUpdate() {
-		float lastTime = 0.0f;
+		//float lastTime = 0.0f;
 		while(true) {
 			float time = Time.time;
 			_currentValue = Mathf.PerlinNoise(time, 0.0f);

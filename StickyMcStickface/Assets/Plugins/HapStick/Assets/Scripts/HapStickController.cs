@@ -22,11 +22,13 @@ public class HapStickController : MonoBehaviour
     [Space(5)]
     [Header("Bluetooth parameters")]
     public string deviceName = "HCI_HapStick";
-    public string donglePort = "COM11";
+    public string donglePort = "COM5";
     public bool debugPackets = false;
+
+    bool battery = false;
+
     public bool debugPPS = !false; // Packets per second
     public String BatteryLevel = ""; // Batteries stick around 3.7V then slowly sink down to 3.2V. TODO: Display a warning below 3.7V 
-    public String Battery2Level = "";
     //public
     int packetsReceived = 0;
     
@@ -39,10 +41,9 @@ public class HapStickController : MonoBehaviour
     [Tooltip("Values from 0 to 3 for SGAM (System, Gyroscope, Accelerometer and Magnetometer)")]
     public string CalibrationStatus = "0000";
 
-    //[Space(5)]
-    //[Header("I2C Indexes for actuators")]
-    //[Range(1, 5)] public 
-    private byte piezoIndex = 1;
+    [Space(5)]
+    [Header("I2C Indexes for actuators")]
+    [Range(1, 5)] public byte piezoIndex = 1;
 
     const float DRV2667_MIN_FREQ_BASE = 7.8125f;
     const float DRV2667_MAX_FREQ_BASE = 255 * DRV2667_MIN_FREQ_BASE;
@@ -60,7 +61,6 @@ public class HapStickController : MonoBehaviour
     public short LaserSensorDistance = 0;
     public short JoystickX = 0;
     public short JoystickY = 0;
-    [Range(-50, 50)] public short MotorPosition = 0;
 
     //****************************************************************************************************************************
 
@@ -141,7 +141,10 @@ public class HapStickController : MonoBehaviour
     String BatteryLevelPacketID = BitConverter.ToString(Encoding.UTF8.GetBytes("BA")).Replace("-", "");
 
     //******************************************************
-
+    void Awake()
+    {
+        Application.targetFrameRate = 30;
+    }
     void Update()
     {   
         durationMS = 1000.0f * ((float)cycles / (float)frequency); // TODO: add the envelope time. Page 20 on http://www.ti.com/lit/ds/symlink/drv2667.pdf
@@ -150,14 +153,14 @@ public class HapStickController : MonoBehaviour
         {
             recenter();
         }
-        else if (Input.GetKeyDown(KeyCode.Q))
-        {
-            triggerPiezo(true);
-        }
-        else if (Input.GetKeyDown(KeyCode.W))
-        {
-            triggerPiezo(false);
-        }
+        //else if (Input.GetKeyDown(KeyCode.Q))
+        //{
+        //    triggerPiezo(true);
+        //}
+        //else if (Input.GetKeyDown(KeyCode.W))
+        //{
+        //    triggerPiezo(false);
+        //}
         else if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             triggerPiezo(true, "255,18,7,9");
@@ -178,10 +181,10 @@ public class HapStickController : MonoBehaviour
         {
             triggerPiezo(true, "255,40,2,3");
         }
-        else if (Input.GetKeyDown(KeyCode.Alpha0))
-        {
-            triggerPiezo(false);
-        }
+        //else if (Input.GetKeyDown(KeyCode.Alpha0))
+        //{
+        //    triggerPiezo(false);
+        //}
 
         //***************************************************************
 
@@ -276,9 +279,14 @@ public class HapStickController : MonoBehaviour
                     waitingForFirstQuaternion = false;
                 }
 
+                /*
                 cube.transform.rotation = 
                     Quaternion.Euler(AngleOffsetX, AngleOffsetY, AngleOffsetZ) * 
                     (centeringQuaternion * deviceQuaternion);
+                */
+
+                cube.transform.rotation = getIMUOrientation();
+
 
                 if (debugPackets) Debug.Log(string.Format("RX: {0} {1} {2} {3}", quaternionData[0], quaternionData[1], quaternionData[2], quaternionData[3]));
 
@@ -360,7 +368,7 @@ public class HapStickController : MonoBehaviour
             else if (BatteryLevelPacketID.Equals(EncodedID))
             {
                 BatteryLevel = "" + (char)packet[4] + "." + (char)packet[5] + " Volts";
-                Battery2Level = "" + (char)packet[6] + "." + (char)packet[7] + " Volts";
+               
             }
             else
             {
@@ -372,6 +380,14 @@ public class HapStickController : MonoBehaviour
             }
         }
     }
+
+    
+    public Quaternion getIMUOrientation()
+    {
+        return Quaternion.Euler(AngleOffsetX, AngleOffsetY, AngleOffsetZ)
+            * (centeringQuaternion * deviceQuaternion);
+    }
+
 
     void Start()
     {
@@ -391,7 +407,7 @@ public class HapStickController : MonoBehaviour
     //******************************************************
 
     int tryCounter = 0;
-    const int MAX_TRY_NUM = 3;
+    const int MAX_TRY_NUM = 10;
 
     private int SendPacket(string message)
     {
@@ -402,10 +418,11 @@ public class HapStickController : MonoBehaviour
         int result = SendPacket(ptr, (byte)packet.Length);
         Marshal.FreeHGlobal(ptr);
         
-        if (result != 0 && tryCounter<MAX_TRY_NUM)
+        if (result != 0 && tryCounter < MAX_TRY_NUM)
         {
             ///Debug.Log("!!");
             tryCounter++;
+            Debug.Log("Response error code: " + result);
             return SendPacket(message);
         }
 
@@ -463,28 +480,13 @@ public class HapStickController : MonoBehaviour
     {
         SendPacket("TOGIMU"); // Toggle IMU data transfer
     }
-
-    public void setMotorPosition()
-    {
-        SendPacket("MPP" + (byte)(MotorPosition+50));
-    }
-
-    public void calibrateMotorBackward()
-    {
-        SendPacket("MPB");
-    }
-
-    public void calibrateMotorFordward()
-    {
-        SendPacket("MPF");
-    }
-
+    
     public void ToggleLidarSensor()
     {
         SendPacket("DSLT");
     }
 
-    public void toggleIRSensor()
+    public void toggleUltraSonicSensor()
     {
         SendPacket("DSIT");
     }
@@ -494,10 +496,36 @@ public class HapStickController : MonoBehaviour
         SendPacket("AP" + (enabled ? ("E" + piezoIndex + "," + piezoValues) : ("D" + piezoIndex)));
     }
 
-    public void triggerPiezo(bool enabled)
+    public void triggerPiezo(bool enabled,int index)
     {
-        SendPacket("AP" + (enabled ? ("E" + piezoIndex + "," + amplitud + "," + (byte)(frequency / DRV2667_MIN_FREQ_BASE) + "," + cycles + "," + envelope) : ("D" + piezoIndex)));
+        SendPacket("AP" + (enabled ? ("E" + index.ToString() + "," + amplitud + "," + (byte)(frequency / DRV2667_MIN_FREQ_BASE) + "," + cycles + "," + envelope) : ("D" + index.ToString())));
+        Debug.Log(index);
+    }
+
+    public void triggerPiezo(bool enabled, int index, byte amplitud)
+    {
+        byte cycles = (byte)(frequency * durationMS / 1000);
+        SendPacket("AP" + (enabled ? ("E" + index.ToString() + "," + amplitud + "," + (byte)(frequency / DRV2667_MIN_FREQ_BASE) + "," + cycles + "," + envelope) : ("D" + index.ToString())));
+    }
+
+    public void triggerPiezo(string command)
+    {
+        SendPacket(command);
+    }
+
+    public string buildCommand(int index, byte amplitud)
+    {
+        return "APE" + index.ToString() + "," + amplitud + "," + (byte)(frequency / DRV2667_MIN_FREQ_BASE) + "," + cycles + "," + envelope;
+    }
+
+    public string buildCommand(int index)
+    {
+        return buildCommand(index, amplitud);
     }
     
     ///Debug.Log(string.Format(sw.ElapsedMilliseconds + "Fingertip feedback >>> {0}", enabled));
+    ///
+    
 }
+
+

@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2015
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointCloud.CSharp", "PointCloud.CSharp.csproj", "{5504B2BA-56D7-67FF-720B-3BD56E4D3402}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointCloud.CSharp.Plugins", "PointCloud.CSharp.Plugins.csproj", "{305EB79B-B6C1-12EC-1203-15A1C2B050D0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5504B2BA-56D7-67FF-720B-3BD56E4D3402}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5504B2BA-56D7-67FF-720B-3BD56E4D3402}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5504B2BA-56D7-67FF-720B-3BD56E4D3402}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5504B2BA-56D7-67FF-720B-3BD56E4D3402}.Release|Any CPU.Build.0 = Release|Any CPU
+		{305EB79B-B6C1-12EC-1203-15A1C2B050D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{305EB79B-B6C1-12EC-1203-15A1C2B050D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{305EB79B-B6C1-12EC-1203-15A1C2B050D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{305EB79B-B6C1-12EC-1203-15A1C2B050D0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
