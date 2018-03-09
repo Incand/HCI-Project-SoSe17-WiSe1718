@@ -1,4 +1,5 @@
-"""Python command line program to manage and collect data 
+"""Python command line program to manage and collect data during the 
+experiment.
 """
 
 import argparse
