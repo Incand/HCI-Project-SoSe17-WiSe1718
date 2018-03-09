@@ -5,7 +5,12 @@ experiment.
 import argparse
 
 
+def collect_data():
+    pass
+
+
 if __name__ == '__main__':
     # TODO argparsing
+    # TODO load
     # TODO data collection
     pass
