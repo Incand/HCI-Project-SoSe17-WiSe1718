@@ -1,0 +1,10 @@
+del BLEController.log
+del BLEController.log.meta
+del BLEController.exp
+del BLEController.exp.meta
+del BLEController.ilk
+del BLEController.ilk.meta
+del BLEController.lib
+del BLEController.lib.meta
+del BLEController.pdb
+del BLEController.pdb.meta
