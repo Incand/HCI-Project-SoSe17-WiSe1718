@@ -5,13 +5,17 @@ import collections
 import matplotlib.pyplot as plt
 
 
-PATH = './data/all.csv'
+PATH = './data_cleaned/all.csv'
 REF_POINTS = [55, 125, 195, 265]
 METRIC_MAP = {
     'participant': 0,
     'refpoint': 1,
     'distance': 2
 }
+
+# Matplotlib label and tick fontsizes
+FS_TICK_LEGEND = 24
+FS_LABEL       = 26
 
 
 def str2bool(_str):
@@ -95,8 +99,10 @@ def _plot_relerr(_x, _y, xlab, barwidth):
     _ax.bar(x=_x, height=_y, width=(4/5 * barwidth), color='#555E67')
     _ax.set_axisbelow(True)
     _ax.grid(linestyle='dashed')
-    plt.ylabel("Relative Error")
-    plt.xlabel(xlab)
+    plt.xticks(_x, fontsize=FS_TICK_LEGEND)
+    plt.yticks(fontsize=FS_TICK_LEGEND)
+    plt.ylabel("Relative Error", fontsize=FS_LABEL)
+    plt.xlabel(xlab, fontsize=FS_LABEL)
     plt.show()
 
 
@@ -105,7 +111,7 @@ def plot_relerr_by_distances(data):
     step_size = 5
     _x = list(range(-30, -1, step_size)) + list(range(5, 31, step_size))
     _y = [get_relerr_by_distance(data, x) for x in _x]
-    _plot_relerr(_x, _y, "Distance from Reference Point", step_size)
+    _plot_relerr(_x, _y, "Distance from Reference Point (cm)", step_size)
 
 
 def plot_relerr_by_refpoints(data):
@@ -113,13 +119,13 @@ def plot_relerr_by_refpoints(data):
     step_size = 70
     _x = list(range(55, 300, step_size))
     _y = [get_relerr_by_refpoint(data, x) for x in _x]
-    _plot_relerr(_x, _y, "Sensor to Reference Point Distance", step_size)
+    _plot_relerr(_x, _y, "Sensor to Reference Point Distance (cm)", step_size)
 
 
 def plot_relerr_by_participants(data):
     """Sets up a bar-subplot for the relative error by participant."""
     step_size = 1
-    _x = list(range(1, 7, step_size))
+    _x = list(range(1, 6, step_size))
     _y = [get_relerr_by_participant(data, x) for x in _x]
     _plot_relerr(_x, _y, "Participant ID", step_size)
 
