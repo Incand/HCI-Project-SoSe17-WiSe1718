@@ -3,6 +3,7 @@
 import csv
 import collections
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 PATH = './data_cleaned/all.csv'
@@ -16,6 +17,11 @@ METRIC_MAP = {
 # Matplotlib label and tick fontsizes
 FS_TICK_LEGEND = 24
 FS_LABEL       = 26
+
+
+# 48 trials per distance difference
+# 144 trials per reference point
+# 96 trials per participant
 
 
 def str2bool(_str):
@@ -61,7 +67,7 @@ def _applies_by_metric(row, _by):
 
 
 def _get_relerr(data, _by):
-    """Get relative error by given metric(s)."""
+    """Get absolute and relative error by given metric(s)."""
     negatives = 0
     total = 0
     for row in data:
@@ -69,7 +75,7 @@ def _get_relerr(data, _by):
             total += 1
             if row[3] is False:
                 negatives += 1
-    return negatives / total
+    return (negatives, negatives / total, total)
 
 
 def get_relerr_by_distance(data, distance):
@@ -96,14 +102,18 @@ def get_relerr_by_participant(data, participant):
 def _plot_relerr(_x, _y, xlab, barwidth):
     """Generic bar-plot function."""
     _, _ax = plt.subplots()
-    _ax.bar(x=_x, height=_y, width=(4/5 * barwidth), color='#555E67')
+    _yrel = list(get_column(_y, 1))
+    _yabs = list(get_column(_y, 0))
+    _ax.bar(x=_x, height=_yrel, width=(4/5 * barwidth), color='#555E67')
     _ax.set_axisbelow(True)
     _ax.grid(linestyle='dashed')
     plt.xticks(_x, fontsize=FS_TICK_LEGEND)
     plt.yticks(fontsize=FS_TICK_LEGEND)
-    plt.ylabel("Relative Error", fontsize=FS_LABEL)
+    plt.ylabel("Error Ratio" , fontsize=FS_LABEL)
     plt.xlabel(xlab, fontsize=FS_LABEL)
     plt.show()
+    print(xlab + ' MEAN: ' + str(np.average(_yabs)))
+    print(xlab + ' STDDEV: ' + str(np.std(_yabs)))
 
 
 def plot_relerr_by_distances(data):
@@ -125,7 +135,7 @@ def plot_relerr_by_refpoints(data):
 def plot_relerr_by_participants(data):
     """Sets up a bar-subplot for the relative error by participant."""
     step_size = 1
-    _x = list(range(1, 6, step_size))
+    _x = list(range(0, 6, step_size))
     _y = [get_relerr_by_participant(data, x) for x in _x]
     _plot_relerr(_x, _y, "Participant ID", step_size)
 
