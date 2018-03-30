@@ -18,8 +18,8 @@ LIN_OFF   = ACT_FREQ_MIN - DIST_MAX * LIN_SLOPE
 
 
 # Plot fontsizes
-TICKS_LEGEND = 18
-AXIS_LABELS  = 20
+TICKS_LEGEND = 24
+AXIS_LABELS  = 26
 
 
 def linear_func(_x):
