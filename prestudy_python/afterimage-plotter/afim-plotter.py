@@ -1,50 +1,42 @@
+"""
+public float GaussLike(float x)
+{
+    float exp = 1.0f / GAUSS_STD_DEV * (_angle - x);
+    return _getFalloff() * Mathf.Exp(-0.5f * (exp * exp));
+}
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
-import collections as col
 
 
-DIST_MIN     = 20
-DIST_MAX     = 300
-ACT_FREQ_MIN = 1
-ACT_FREQ_MAX = 7
+RANGE         = 90
+N_ACTUATORS   = 4
 
-DIST_DIFF = DIST_MAX - DIST_MIN
-ACT_FREQ_RATIO = ACT_FREQ_MIN / ACT_FREQ_MAX
-
-# Slope of the linear feedback function
-LIN_SLOPE = (ACT_FREQ_MIN - ACT_FREQ_MAX) / DIST_DIFF
-# y-offset of the linear feedback function
-LIN_OFF   = ACT_FREQ_MIN - DIST_MAX * LIN_SLOPE
-
+GAUSS_STD_DEV = RANGE / N_ACTUATORS
+RANGE_TUP     = (-RANGE, RANGE+1)
 
 # Plot fontsizes
 TICKS_LEGEND = 24
 AXIS_LABELS  = 26
 
 
-def linear_func(_x):
-    return LIN_SLOPE * _x + LIN_OFF
-
-
-def feedback_func(x):
-    return ACT_FREQ_MAX * ACT_FREQ_RATIO ** ((x - DIST_MIN) / DIST_DIFF)
+def get_gauss_like(lifetime, angle, _x):
+    exp = 1 / GAUSS_STD_DEV * (angle - _x)
+    return lifetime * np.exp(-0.5 * exp * exp)
 
 
 def main():
-    _xs = np.linspace(20, 300, 281)
-    _ys_exp = feedback_func(_xs)
-    _ys_lin = linear_func(_xs)
-    
-    plt.plot(_xs, _ys_lin, label='Lin.')
-    plt.plot(_xs, _ys_exp, label='Exp.')
-    plt.xlabel("Distance (cm)", fontsize=AXIS_LABELS)
-    plt.ylabel("Activation Frequency (Hz)", fontsize=AXIS_LABELS)
-    plt.xlim((0, 320))
-    plt.ylim((0, 8))
-    plt.xticks(np.arange(0, 321, 20), fontsize=TICKS_LEGEND)
+    _xs = np.linspace(*RANGE_TUP, 1000)
+    _ys = get_gauss_like(0.5, -45, _xs)
+    plt.plot(_xs, _ys)
+    plt.xlabel("Angle (Degree)", fontsize=AXIS_LABELS)
+    plt.ylabel("Amplitude", fontsize=AXIS_LABELS)
+    plt.xlim((-RANGE, RANGE))
+    plt.ylim((0, 1.1))
+    plt.xticks(np.arange(*RANGE_TUP, 15), fontsize=TICKS_LEGEND)
     plt.yticks(fontsize=TICKS_LEGEND)
     plt.grid(True)
-    plt.legend(fontsize=TICKS_LEGEND)
     plt.show()
 
 
